@@ -19,6 +19,9 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [streak, setStreak] = useState(0);
     const [isFirstDay, setIsFirstDay] = useState(false);
+    const [bonusBlocsToday, setBonusBlocsToday] = useState(0);
+    const [generating, setGenerating] = useState(false);
+    const [generateError, setGenerateError] = useState('');
 
     useEffect(() => {
         fetchTodayBlocs();
@@ -33,6 +36,9 @@ export default function DashboardPage() {
             if (response.ok) {
                 setBlocs(data.blocs || []);
                 setIsFirstDay(data.is_first_day || false);
+                // Calculate bonus blocs count
+                const bonusCount = (data.blocs || []).filter((b: any) => b.is_bonus).length;
+                setBonusBlocsToday(bonusCount);
             }
         } catch (error) {
             console.error('Error fetching blocs:', error);
@@ -51,6 +57,29 @@ export default function DashboardPage() {
             }
         } catch (error) {
             console.error('Error fetching streak:', error);
+        }
+    };
+
+    const handleGenerateToday = async () => {
+        setGenerating(true);
+        setGenerateError('');
+
+        try {
+            const response = await fetch('/api/blocs/generate-bonus', {
+                method: 'POST',
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to generate bonus bloc');
+            }
+
+            // Refresh the blocs list
+            await fetchTodayBlocs();
+        } catch (error: any) {
+            setGenerateError(error.message);
+        } finally {
+            setGenerating(false);
         }
     };
 
@@ -124,6 +153,83 @@ export default function DashboardPage() {
                             })}
                         </p>
                     </div>
+
+                    {/* Generate Bonus Bloc Button */}
+                    {!loading && (
+                        <div className="card p-8 text-center space-y-6 animate-fade-in
+                                      hover:shadow-xl transition-all duration-300 relative">
+                            <div className="space-y-2">
+                                <h2 className="text-2xl font-bold text-slate-900">
+                                    Quick random read?
+                                </h2>
+                                <p className="text-slate-600">
+                                    Generate a bonus bloc to read and learn when free
+                                </p>
+                            </div>
+
+                            {generateError && (
+                                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm
+                                              animate-shake">
+                                    {generateError}
+                                </div>
+                            )}
+
+                            <div className="relative inline-block">
+                                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 
+                                              rounded-2xl blur-lg opacity-50 group-hover:opacity-75 
+                                              transition-all duration-300 animate-pulse"></div>
+                                <button
+                                    onClick={handleGenerateToday}
+                                    disabled={generating || bonusBlocsToday >= 3}
+                                    className="group relative px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-600 
+                                             text-white text-lg font-semibold rounded-2xl
+                                             shadow-xl hover:shadow-2xl
+                                             transform transition-all duration-300
+                                             hover:scale-105 hover:-translate-y-1
+                                             active:scale-95 active:translate-y-0
+                                             disabled:opacity-50 disabled:cursor-not-allowed
+                                             disabled:hover:scale-100 disabled:hover:translate-y-0
+                                             border-2 border-white/20"
+                                >
+                                    {generating ? (
+                                        <span className="flex items-center gap-3">
+                                            <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                            </svg>
+                                            Generating...
+                                        </span>
+                                    ) : (
+                                        <span className="flex items-center gap-3">
+                                            ✨ Generate bonus bloc
+                                            <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                            </svg>
+                                        </span>
+                                    )}
+                                </button>
+                            </div>
+
+                            {/* Floating Counter Badge - Bottom Right */}
+                            <div className="absolute bottom-4 right-4">
+                                {bonusBlocsToday < 3 ? (
+                                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200 shadow-sm">
+                                        <span className="text-xs font-medium text-blue-700">
+                                            {3 - bonusBlocsToday} left today
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-200 shadow-sm">
+                                        <span className="text-xs font-medium text-orange-700">
+                                            Renews at midnight
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     {/* First Day Empty State */}
                     {isFirstDay && blocs.length === 0 && (
