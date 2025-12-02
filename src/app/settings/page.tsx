@@ -94,7 +94,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-purple-50/20 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-white">
       {/* Header */}
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="container-custom py-4 flex items-center justify-between">
@@ -112,9 +112,21 @@ export default function SettingsPage() {
             </Link>
             <button
               onClick={handleLogout}
-              className="btn-ghost text-sm text-red-600 hover:bg-red-50"
+              className="group relative px-4 py-2 rounded-xl font-medium 
+                         bg-white border border-slate-200 text-slate-700
+                         hover:border-red-300 hover:bg-red-50 hover:text-red-600
+                         transition-all duration-200 ease-out
+                         hover:shadow-md hover:-translate-y-0.5
+                         active:translate-y-0"
             >
-              Logout
+              <span className="flex items-center gap-2 text-sm">
+                <svg className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12"
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Logout
+              </span>
             </button>
           </div>
         </div>
@@ -233,10 +245,10 @@ export default function SettingsPage() {
                           onClick={() => toggleTopic(topic)}
                           disabled={isDisabled}
                           className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${isSelected
-                              ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md transform scale-105'
-                              : isDisabled
-                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                : 'bg-white border-2 border-slate-200 hover:border-primary-300 hover:shadow-sm'
+                            ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md transform scale-105'
+                            : isDisabled
+                              ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                              : 'bg-white border-2 border-slate-200 hover:border-primary-300 hover:shadow-sm'
                             }`}
                         >
                           {topic}
@@ -288,8 +300,8 @@ export default function SettingsPage() {
                             key={option.value}
                             onClick={() => setSchedule(option.value)}
                             className={`w-full p-4 rounded-xl text-left transition-all ${schedule === option.value
-                                ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md'
-                                : 'bg-white border-2 border-slate-200 hover:border-primary-300'
+                              ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md'
+                              : 'bg-white border-2 border-slate-200 hover:border-primary-300'
                               }`}
                           >
                             <div className="font-semibold">{option.label}</div>

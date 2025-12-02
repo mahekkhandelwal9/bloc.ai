@@ -100,7 +100,7 @@ export default function Home() {
     };
 
     return (
-        <main className="min-h-screen relative flex flex-col">
+        <main className="min-h-screen relative flex flex-col bg-gradient-to-br from-white via-purple-50/30 to-white">
             {/* Header with Logout */}
             <header className="absolute top-0 left-0 right-0 z-10 p-6">
                 <div className="container-custom flex justify-between items-center">

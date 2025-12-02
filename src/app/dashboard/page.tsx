@@ -119,7 +119,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-white via-purple-50/20 to-white">
+        <div className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-white">
             <StreakDetails
                 isOpen={showStreakDetails}
                 onClose={() => setShowStreakDetails(false)}
@@ -155,9 +155,21 @@ export default function DashboardPage() {
                         </Link>
                         <button
                             onClick={handleLogout}
-                            className="btn-ghost text-sm text-red-600 hover:bg-red-50"
+                            className="group relative px-4 py-2 rounded-xl font-medium 
+                                     bg-white border border-slate-200 text-slate-700
+                                     hover:border-red-300 hover:bg-red-50 hover:text-red-600
+                                     transition-all duration-200 ease-out
+                                     hover:shadow-md hover:-translate-y-0.5
+                                     active:translate-y-0"
                         >
-                            Logout
+                            <span className="flex items-center gap-2 text-sm">
+                                <svg className="w-4 h-4 transition-transform duration-300 group-hover:rotate-12"
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Logout
+                            </span>
                         </button>
                     </div>
                 </div>
