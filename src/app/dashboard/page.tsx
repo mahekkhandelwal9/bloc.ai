@@ -13,6 +13,8 @@ interface Bloc {
     status: 'pending' | 'generated' | 'failed';
 }
 
+import StreakDetails from '@/components/StreakDetails';
+
 export default function DashboardPage() {
     const router = useRouter();
     const [blocs, setBlocs] = useState<Bloc[]>([]);
@@ -22,6 +24,7 @@ export default function DashboardPage() {
     const [bonusBlocsToday, setBonusBlocsToday] = useState(0);
     const [generating, setGenerating] = useState(false);
     const [generateError, setGenerateError] = useState('');
+    const [showStreakDetails, setShowStreakDetails] = useState(false);
 
     useEffect(() => {
         fetchTodayBlocs();
@@ -97,6 +100,13 @@ export default function DashboardPage() {
         }
     };
 
+    const handleLogout = async () => {
+        // Optimistic update
+        document.cookie = 'bloc_user_id=; Max-Age=0; path=/';
+        fetch('/api/auth/logout', { method: 'POST' }).catch(() => { });
+        window.location.href = '/';
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -110,6 +120,12 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-white via-purple-50/20 to-white">
+            <StreakDetails
+                isOpen={showStreakDetails}
+                onClose={() => setShowStreakDetails(false)}
+                currentStreak={streak}
+            />
+
             {/* Header */}
             <header className="border-b border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
                 <div className="container-custom py-4 flex items-center justify-between">
@@ -120,11 +136,15 @@ export default function DashboardPage() {
 
                     <div className="flex items-center gap-4">
                         {/* Streak */}
-                        <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-50 to-accent-50 rounded-full border border-primary-200">
+                        <button
+                            onClick={() => setShowStreakDetails(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-50 to-accent-50 
+                                     rounded-full border border-primary-200 hover:scale-105 transition-transform cursor-pointer"
+                        >
                             <span className="text-xl">🔥</span>
                             <span className="font-semibold text-slate-900">{streak}</span>
                             <span className="text-sm text-slate-600">day streak</span>
-                        </div>
+                        </button>
 
                         {/* Navigation */}
                         <Link href="/archive" className="btn-ghost text-sm">
@@ -133,6 +153,12 @@ export default function DashboardPage() {
                         <Link href="/settings" className="btn-ghost text-sm">
                             Settings
                         </Link>
+                        <button
+                            onClick={handleLogout}
+                            className="btn-ghost text-sm text-red-600 hover:bg-red-50"
+                        >
+                            Logout
+                        </button>
                     </div>
                 </div>
             </header>

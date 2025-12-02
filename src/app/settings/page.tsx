@@ -9,6 +9,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [activeSection, setActiveSection] = useState<string | null>('profile');
 
   const [bio, setBio] = useState('');
   const [topics, setTopics] = useState<string[]>([]);
@@ -75,8 +76,13 @@ export default function SettingsPage() {
   };
 
   const handleLogout = () => {
-    document.cookie = 'bloc_user_id=; Max-Age=0';
-    router.push('/login');
+    document.cookie = 'bloc_user_id=; Max-Age=0; path=/';
+    fetch('/api/auth/logout', { method: 'POST' }).catch(() => { });
+    window.location.href = '/';
+  };
+
+  const toggleSection = (section: string) => {
+    setActiveSection(activeSection === section ? null : section);
   };
 
   if (loading) {
@@ -104,6 +110,12 @@ export default function SettingsPage() {
             <Link href="/archive" className="btn-ghost text-sm">
               Archive
             </Link>
+            <button
+              onClick={handleLogout}
+              className="btn-ghost text-sm text-red-600 hover:bg-red-50"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </header>
@@ -111,112 +123,197 @@ export default function SettingsPage() {
       {/* Main Content */}
       <main className="container-custom py-12">
         <div className="max-w-3xl mx-auto space-y-8">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900">
-              Settings
-            </h1>
-            <p className="text-lg text-slate-600 mt-2">
-              Manage your learning preferences
-            </p>
-          </div>
-
-          {/* Bio Section */}
-          <div className="card p-6 md:p-8 space-y-4">
-            <h2 className="text-2xl font-semibold text-slate-900">Your Background</h2>
-            <textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="Tell us about yourself..."
-              rows={5}
-              maxLength={500}
-              className="input resize-none"
-            />
-            <div className="text-right text-sm text-slate-400">
-              {bio.length}/500
-            </div>
-          </div>
-
-          {/* Topics Section */}
-          <div className="card p-6 md:p-8 space-y-4">
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-semibold text-slate-900">Topics</h2>
-              <p className="text-slate-600 mt-1">
-                Select up to 3 topics ({topics.length}/3)
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900">
+                Settings
+              </h1>
+              <p className="text-lg text-slate-600 mt-2">
+                Manage your learning preferences
               </p>
             </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {TOPICS.map((topic) => {
-                const isSelected = topics.includes(topic);
-                const isDisabled = !isSelected && topics.length >= 3;
-
-                return (
-                  <button
-                    key={topic}
-                    onClick={() => toggleTopic(topic)}
-                    disabled={isDisabled}
-                    className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                      isSelected
-                        ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white'
-                        : isDisabled
-                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                        : 'bg-white border-2 border-slate-200 hover:border-primary-300'
-                    }`}
-                  >
-                    {topic}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Schedule Section */}
-          <div className="card p-6 md:p-8 space-y-4">
-            <h2 className="text-2xl font-semibold text-slate-900">Reading Schedule</h2>
-            
-            <div className="space-y-3">
-              {READING_DAYS.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setSchedule(option.value)}
-                  className={`w-full p-4 rounded-xl text-left transition-all ${
-                    schedule === option.value
-                      ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white'
-                      : 'bg-white border-2 border-slate-200 hover:border-primary-300'
-                  }`}
-                >
-                  <div className="font-semibold">{option.label}</div>
-                  <div className={`text-sm ${schedule === option.value ? 'text-purple-100' : 'text-slate-500'}`}>
-                    {option.description}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Time Section */}
-          <div className="card p-6 md:p-8 space-y-4">
-            <h2 className="text-2xl font-semibold text-slate-900">Preferred Time</h2>
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className="input text-center text-xl font-semibold"
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-between gap-4">
-            <button onClick={handleLogout} className="btn-secondary text-red-600">
-              Logout
-            </button>
             <button
               onClick={handleSave}
               disabled={saving || topics.length === 0}
-              className="btn-primary disabled:opacity-50"
+              className="btn-primary disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
+          </div>
+
+          <div className="space-y-4">
+            {/* Profile Section */}
+            <div className="card overflow-hidden transition-all duration-300">
+              <button
+                onClick={() => toggleSection('profile')}
+                className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-xl">
+                    👤
+                  </div>
+                  <div className="text-left">
+                    <h2 className="text-xl font-semibold text-slate-900">Your Profile</h2>
+                    <p className="text-sm text-slate-500">Bio and personal details</p>
+                  </div>
+                </div>
+                <svg
+                  className={`w-6 h-6 text-slate-400 transition-transform duration-300 ${activeSection === 'profile' ? 'rotate-180' : ''
+                    }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <div
+                className={`transition-all duration-300 ease-in-out ${activeSection === 'profile' ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+              >
+                <div className="p-6 pt-0 border-t border-slate-100">
+                  <div className="mt-4 space-y-4">
+                    <label className="block text-sm font-medium text-slate-700">Your Bio</label>
+                    <textarea
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      placeholder="Tell us about yourself..."
+                      rows={5}
+                      maxLength={500}
+                      className="input resize-none"
+                    />
+                    <div className="text-right text-sm text-slate-400">
+                      {bio.length}/500
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Topics Section */}
+            <div className="card overflow-hidden transition-all duration-300">
+              <button
+                onClick={() => toggleSection('topics')}
+                className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xl">
+                    📚
+                  </div>
+                  <div className="text-left">
+                    <h2 className="text-xl font-semibold text-slate-900">Learning Topics</h2>
+                    <p className="text-sm text-slate-500">Select up to 3 topics ({topics.length}/3)</p>
+                  </div>
+                </div>
+                <svg
+                  className={`w-6 h-6 text-slate-400 transition-transform duration-300 ${activeSection === 'topics' ? 'rotate-180' : ''
+                    }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <div
+                className={`transition-all duration-300 ease-in-out ${activeSection === 'topics' ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+              >
+                <div className="p-6 pt-0 border-t border-slate-100">
+                  <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {TOPICS.map((topic) => {
+                      const isSelected = topics.includes(topic);
+                      const isDisabled = !isSelected && topics.length >= 3;
+
+                      return (
+                        <button
+                          key={topic}
+                          onClick={() => toggleTopic(topic)}
+                          disabled={isDisabled}
+                          className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${isSelected
+                              ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md transform scale-105'
+                              : isDisabled
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                : 'bg-white border-2 border-slate-200 hover:border-primary-300 hover:shadow-sm'
+                            }`}
+                        >
+                          {topic}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Schedule Section */}
+            <div className="card overflow-hidden transition-all duration-300">
+              <button
+                onClick={() => toggleSection('schedule')}
+                className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xl">
+                    ⏰
+                  </div>
+                  <div className="text-left">
+                    <h2 className="text-xl font-semibold text-slate-900">Schedule & Time</h2>
+                    <p className="text-sm text-slate-500">When do you want to learn?</p>
+                  </div>
+                </div>
+                <svg
+                  className={`w-6 h-6 text-slate-400 transition-transform duration-300 ${activeSection === 'schedule' ? 'rotate-180' : ''
+                    }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <div
+                className={`transition-all duration-300 ease-in-out ${activeSection === 'schedule' ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+              >
+                <div className="p-6 pt-0 border-t border-slate-100">
+                  <div className="mt-4 space-y-6">
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-slate-700">Reading Days</label>
+                      <div className="grid gap-3">
+                        {READING_DAYS.map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={() => setSchedule(option.value)}
+                            className={`w-full p-4 rounded-xl text-left transition-all ${schedule === option.value
+                                ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md'
+                                : 'bg-white border-2 border-slate-200 hover:border-primary-300'
+                              }`}
+                          >
+                            <div className="font-semibold">{option.label}</div>
+                            <div className={`text-sm ${schedule === option.value ? 'text-purple-100' : 'text-slate-500'}`}>
+                              {option.description}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-slate-700">Preferred Time</label>
+                      <input
+                        type="time"
+                        value={time}
+                        onChange={(e) => setTime(e.target.value)}
+                        className="input text-center text-xl font-semibold"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>
