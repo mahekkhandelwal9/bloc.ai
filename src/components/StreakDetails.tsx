@@ -6,9 +6,10 @@ interface StreakDetailsProps {
     isOpen: boolean;
     onClose: () => void;
     currentStreak: number;
+    longestStreak: number;
 }
 
-export default function StreakDetails({ isOpen, onClose, currentStreak }: StreakDetailsProps) {
+export default function StreakDetails({ isOpen, onClose, currentStreak, longestStreak }: StreakDetailsProps) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -42,13 +43,13 @@ export default function StreakDetails({ isOpen, onClose, currentStreak }: Streak
 
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 gap-4 py-4">
-                        <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100">
-                            <div className="text-2xl font-bold text-orange-600">Top 5%</div>
-                            <div className="text-xs text-orange-400 font-medium uppercase tracking-wide">Consistency</div>
-                        </div>
                         <div className="p-4 bg-purple-50 rounded-2xl border border-purple-100">
-                            <div className="text-2xl font-bold text-purple-600">Level 3</div>
-                            <div className="text-xs text-purple-400 font-medium uppercase tracking-wide">Scholar</div>
+                            <div className="text-2xl font-bold text-purple-600">{currentStreak}</div>
+                            <div className="text-xs text-purple-400 font-medium uppercase tracking-wide">Current Streak</div>
+                        </div>
+                        <div className="p-4 bg-pink-50 rounded-2xl border border-pink-100">
+                            <div className="text-2xl font-bold text-pink-600">{longestStreak}</div>
+                            <div className="text-xs text-pink-400 font-medium uppercase tracking-wide">Best Streak</div>
                         </div>
                     </div>
 

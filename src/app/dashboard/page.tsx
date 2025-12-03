@@ -20,6 +20,7 @@ export default function DashboardPage() {
     const [blocs, setBlocs] = useState<Bloc[]>([]);
     const [loading, setLoading] = useState(true);
     const [streak, setStreak] = useState(0);
+    const [longestStreak, setLongestStreak] = useState(0);
     const [isFirstDay, setIsFirstDay] = useState(false);
     const [bonusBlocsToday, setBonusBlocsToday] = useState(0);
     const [generating, setGenerating] = useState(false);
@@ -57,6 +58,7 @@ export default function DashboardPage() {
 
             if (response.ok) {
                 setStreak(data.current_streak || 0);
+                setLongestStreak(data.longest_streak || 0);
             }
         } catch (error) {
             console.error('Error fetching streak:', error);
@@ -124,6 +126,7 @@ export default function DashboardPage() {
                 isOpen={showStreakDetails}
                 onClose={() => setShowStreakDetails(false)}
                 currentStreak={streak}
+                longestStreak={longestStreak}
             />
 
             {/* Header */}
@@ -213,13 +216,13 @@ export default function DashboardPage() {
                             )}
 
                             <div className="relative inline-block">
-                                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 
+                                <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 
                                               rounded-2xl blur-lg opacity-50 group-hover:opacity-75 
                                               transition-all duration-300 animate-pulse"></div>
                                 <button
                                     onClick={handleGenerateToday}
                                     disabled={generating || bonusBlocsToday >= 3}
-                                    className="group relative px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 
+                                    className="group relative px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 
                                              text-white text-lg font-semibold rounded-2xl
                                              shadow-xl hover:shadow-2xl
                                              transform transition-all duration-300
@@ -239,7 +242,7 @@ export default function DashboardPage() {
                                         </span>
                                     ) : (
                                         <span className="flex items-center gap-3">
-                                            ✨ Generate bonus bloc
+                                            ✨ Bonus Bloc
                                             <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
                                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
