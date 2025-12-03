@@ -4,21 +4,35 @@
 
 @layer base {
   :root {
+    /* Original colors */
     --color-bg: 255 255 255;
     --color-text: 15 23 42;
     --color-text-muted: 100 116 139;
     --color-primary: 168 85 247;
     --color-accent: 217 70 239;
     --color-border: 226 232 240;
+
+    /* NEW: Futuristic palette */
+    --color-cyber-purple: 168 85 247;
+    /* #A855F7 */
+    --color-electric-pink: 236 72 153;
+    /* #EC4899 */
+    --color-neon-blue: 59 130 246;
+    /* #3B82F6 */
+    --color-lime-green: 132 204 22;
+    /* #84CC16 */
+    --color-deep-space: 15 23 42;
+    /* #0F172A */
   }
 
   body {
-    @apply bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-slate-900 font-sans antialiased min-h-screen;
+    @apply bg-slate-900 text-slate-100 font-sans antialiased min-h-screen;
     font-feature-settings: 'rlig' 1, 'calt' 1;
+    scroll-behavior: smooth;
   }
 
   .glass-card {
-    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl rounded-2xl;
+    @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl rounded-2xl;
   }
 
   /* Typography */
@@ -28,19 +42,19 @@
   h4,
   h5,
   h6 {
-    @apply font-semibold tracking-tight;
+    @apply font-bold tracking-tight;
   }
 
   h1 {
-    @apply text-4xl md:text-5xl;
+    @apply text-5xl md:text-7xl lg:text-8xl;
   }
 
   h2 {
-    @apply text-3xl md:text-4xl;
+    @apply text-4xl md:text-6xl;
   }
 
   h3 {
-    @apply text-2xl md:text-3xl;
+    @apply text-3xl md:text-4xl;
   }
 
   /* Reading content */
@@ -75,6 +89,16 @@
     @apply bg-gradient-to-r from-primary-500 to-accent-500 bg-clip-text text-transparent;
   }
 
+  /* NEW: Cyber gradient text - CRED style */
+  .cyber-gradient-text {
+    background: linear-gradient(135deg, #A855F7 0%, #EC4899 50%, #3B82F6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% auto;
+    animation: gradient-shift 3s ease infinite;
+  }
+
   /* Shimmer effect for loading */
   .shimmer {
     background: linear-gradient(90deg,
@@ -94,6 +118,20 @@
     @apply card hover:shadow-md hover:-translate-y-0.5;
   }
 
+  /* NEW: Neon card - CRED style */
+  .neon-card {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8;
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+
+  .neon-card:hover {
+    box-shadow: 0 0 50px rgba(168, 85, 247, 0.5), 0 0 80px rgba(236, 72, 153, 0.3);
+    transform: translateY(-8px) rotateX(2deg) rotateY(2deg);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
   /* Button base */
   .btn {
     @apply px-6 py-3 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
@@ -111,6 +149,39 @@
     @apply btn text-slate-600 hover:bg-slate-100;
   }
 
+  /* NEW: Cyber button - CRED style */
+  .btn-cyber {
+    @apply px-10 py-5 rounded-full font-bold text-lg text-white relative overflow-hidden;
+    background: linear-gradient(135deg, #A855F7 0%, #EC4899 100%);
+    box-shadow: 0 10px 40px rgba(168, 85, 247, 0.6);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+
+  .btn-cyber::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.6s ease;
+  }
+
+  .btn-cyber:hover::before {
+    left: 100%;
+  }
+
+  .btn-cyber:hover {
+    box-shadow: 0 15px 60px rgba(168, 85, 247, 0.9), 0 10px 40px rgba(236, 72, 153, 0.6);
+    transform: translateY(-4px) scale(1.05);
+  }
+
+  .btn-cyber:active {
+    transform: translateY(-2px) scale(1.02);
+  }
+
   /* Input styles */
   .input {
     @apply w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-20 transition-all duration-200;
@@ -124,6 +195,69 @@
   /* Progress bar */
   .progress-bar {
     @apply h-1 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full transition-all duration-500;
+  }
+
+  /* NEW: Floating element - CRED style */
+  .floating {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .floating-slow {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  /* NEW: Section with dark bg */
+  .section-dark {
+    @apply bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 text-white py-24 md:py-32;
+  }
+
+  /* NEW: Blob gradient background */
+  .blob-bg {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .blob-bg::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    top: -200px;
+    right: -200px;
+    animation: blob-float 8s ease-in-out infinite;
+    filter: blur(80px);
+  }
+
+  .blob-bg::after {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    bottom: -150px;
+    left: -150px;
+    animation: blob-float 10s ease-in-out infinite reverse;
+    filter: blur(80px);
+  }
+
+  /* NEW: Scroll reveal animation */
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .scroll-reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* NEW: Parallax layers */
+  .parallax-slow {
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -143,25 +277,48 @@
   .backdrop-blur-glass {
     @apply backdrop-blur-md bg-white/80;
   }
+
+  /* NEW: Glow effects - CRED style */
+  .glow-purple {
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.8);
+  }
+
+  .glow-pink {
+    box-shadow: 0 0 40px rgba(236, 72, 153, 0.8);
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+  }
+
+  /* NEW: Text glow */
+  .text-glow {
+    text-shadow: 0 0 20px rgba(168, 85, 247, 0.8), 0 0 40px rgba(236, 72, 153, 0.5);
+  }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - Dark theme */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-slate-100 rounded-full;
+  @apply bg-slate-900;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 rounded-full hover:bg-slate-400;
+  @apply bg-purple-600 rounded-full;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-purple-500;
 }
 
 /* Focus visible for accessibility */
 *:focus-visible {
-  @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+  @apply outline-none ring-2 ring-purple-500 ring-offset-2 ring-offset-slate-900;
 }
 
 /* Animations */
@@ -175,8 +332,82 @@
   }
 }
 
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-30px) rotate(5deg);
+  }
+}
+
+@keyframes blob-float {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-scale-in {
+  animation: scale-in 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .animate-slide-up {
@@ -235,4 +466,37 @@
     transform: translateY(-20px);
     opacity: 0;
   }
+}
+
+/* NEW: Curved section dividers - CRED style */
+.curve-top {
+  position: relative;
+}
+
+.curve-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: inherit;
+  clip-path: ellipse(100% 100% at 50% 0%);
+  transform: translateY(-99%);
+}
+
+.curve-bottom {
+  position: relative;
+}
+
+.curve-bottom::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: inherit;
+  clip-path: ellipse(100% 100% at 50% 100%);
+  transform: translateY(99%);
 }
