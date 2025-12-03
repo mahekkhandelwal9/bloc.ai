@@ -266,7 +266,7 @@ export default function Home() {
                             </h1>
                             <p className="text-2xl md:text-3xl text-slate-300 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                                 10-minute AI-powered knowledge blocs.<br />
-                                Personalized daily. Build your streak.
+                                Personalized daily. Build your habit.
                             </p>
 
                             {isLoggedIn ? (
@@ -278,27 +278,12 @@ export default function Home() {
                                     Start Reading Free →
                                 </button>
                             )}
-
-                            <div className="flex flex-wrap items-center justify-center gap-10 pt-12 text-slate-400 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-                                <div className="flex items-center gap-3">
-                                    <span className="text-4xl">⚡</span>
-                                    <span className="text-lg">10 min reads</span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <span className="text-4xl">🤖</span>
-                                    <span className="text-lg">AI-personalized</span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <span className="text-4xl">🔥</span>
-                                    <span className="text-lg">Streak-based</span>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
                     {/* Scroll indicator */}
                     <div className="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce">
-                        <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-6 h-6 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                         </svg>
                     </div>
@@ -378,7 +363,7 @@ export default function Home() {
                                     <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-blue">
                                         🔥
                                     </div>
-                                    <h3 className="text-3xl font-bold text-white mb-4">Build Streak</h3>
+                                    <h3 className="text-3xl font-bold text-white mb-4">Build Habit</h3>
                                     <p className="text-xl text-slate-400">Track progress, stay consistent</p>
                                 </div>
                             </div>
