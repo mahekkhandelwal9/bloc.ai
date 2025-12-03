@@ -14,7 +14,7 @@ export async function GET() {
         // Fetch user data
         const { data: user, error } = await supabase
             .from('users')
-            .select('id, email, username, created_at')
+            .select('id, email, username, full_name, created_at')
             .eq('id', userId)
             .single();
 
@@ -38,7 +38,7 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { username } = await request.json();
+        const { username, full_name } = await request.json();
 
         if (!username || username.trim().length === 0) {
             return NextResponse.json({ error: 'Username is required' }, { status: 400 });
@@ -56,10 +56,13 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ error: 'Username already taken' }, { status: 409 });
         }
 
-        // Update username
+        // Update username and full_name
         const { data, error } = await supabase
             .from('users')
-            .update({ username: username.trim() })
+            .update({
+                username: username.trim(),
+                full_name: full_name?.trim() || null
+            })
             .eq('id', userId)
             .select()
             .single();

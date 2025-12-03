@@ -3,21 +3,32 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { TOPICS, READING_DAYS } from '@/lib/constants';
 
 export default function SettingsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeSection, setActiveSection] = useState<string | null>('profile');
+  const [activeSection, setActiveSection] = useState<string | null>('preferences');
 
+  // Preferences State
   const [bio, setBio] = useState('');
   const [topics, setTopics] = useState<string[]>([]);
   const [schedule, setSchedule] = useState('weekdays');
   const [time, setTime] = useState('09:00');
 
+  // Profile State
+  const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+
   useEffect(() => {
-    fetchPreferences();
+    Promise.all([fetchPreferences(), fetchProfile()]).finally(() => setLoading(false));
   }, []);
 
   const fetchPreferences = async () => {
@@ -33,8 +44,21 @@ export default function SettingsPage() {
       }
     } catch (error) {
       console.error('Error fetching preferences:', error);
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch('/api/user/profile');
+      const data = await response.json();
+
+      if (response.ok && data.user) {
+        setUsername(data.user.username || '');
+        setFullName(data.user.full_name || '');
+        setEmail(data.user.email || '');
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
     }
   };
 
@@ -42,7 +66,8 @@ export default function SettingsPage() {
     setSaving(true);
 
     try {
-      const response = await fetch('/api/user/preferences', {
+      // Save Preferences
+      const prefResponse = await fetch('/api/user/preferences', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -54,13 +79,28 @@ export default function SettingsPage() {
         }),
       });
 
-      if (response.ok) {
+      // Save Profile
+      const profileResponse = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username,
+          full_name: fullName,
+        }),
+      });
+
+      if (prefResponse.ok && profileResponse.ok) {
         alert('Settings saved successfully!');
       } else {
-        alert('Failed to save settings');
+        const profileData = await profileResponse.json();
+        if (profileData.error) {
+          alert(`Failed to save profile: ${profileData.error}`);
+        } else {
+          alert('Failed to save settings');
+        }
       }
     } catch (error) {
-      console.error('Error saving preferences:', error);
+      console.error('Error saving settings:', error);
       alert('Failed to save settings');
     } finally {
       setSaving(false);
@@ -141,7 +181,7 @@ export default function SettingsPage() {
                 Settings
               </h1>
               <p className="text-lg text-slate-600 mt-2">
-                Manage your learning preferences
+                Manage your profile and preferences
               </p>
             </div>
             <button
@@ -154,19 +194,130 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-4">
-            {/* Profile Section */}
+            {/* My Preferences Section */}
+            <div className="card overflow-hidden transition-all duration-300">
+              <button
+                onClick={() => toggleSection('preferences')}
+                className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-xl">
+                    ⚙️
+                  </div>
+                  <div className="text-left">
+                    <h2 className="text-xl font-semibold text-slate-900">My Preferences</h2>
+                    <p className="text-sm text-slate-500">Topics, Schedule, Bio</p>
+                  </div>
+                </div>
+                <svg
+                  className={`w-6 h-6 text-slate-400 transition-transform duration-300 ${activeSection === 'preferences' ? 'rotate-180' : ''
+                    }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <div
+                className={`transition-all duration-300 ease-in-out ${activeSection === 'preferences' ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+              >
+                <div className="p-6 pt-0 border-t border-slate-100 space-y-8">
+
+                  {/* Topics */}
+                  <div className="mt-6">
+                    <h3 className="text-lg font-medium text-slate-900 mb-3">Topics</h3>
+                    <p className="text-sm text-slate-500 mb-4">Select up to 3 topics ({topics.length}/3)</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {TOPICS.map((topic) => {
+                        const isSelected = topics.includes(topic);
+                        const isDisabled = !isSelected && topics.length >= 3;
+
+                        return (
+                          <button
+                            key={topic}
+                            onClick={() => toggleTopic(topic)}
+                            disabled={isDisabled}
+                            className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${isSelected
+                                ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md transform scale-105'
+                                : isDisabled
+                                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                  : 'bg-white border-2 border-slate-200 hover:border-primary-300 hover:shadow-sm'
+                              }`}
+                          >
+                            {topic}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Schedule */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium text-slate-900">Schedule & Time</h3>
+                    <div className="grid gap-3">
+                      {READING_DAYS.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => setSchedule(option.value)}
+                          className={`w-full p-4 rounded-xl text-left transition-all ${schedule === option.value
+                              ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md'
+                              : 'bg-white border-2 border-slate-200 hover:border-primary-300'
+                            }`}
+                        >
+                          <div className="font-semibold">{option.label}</div>
+                          <div className={`text-sm ${schedule === option.value ? 'text-purple-100' : 'text-slate-500'}`}>
+                            {option.description}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Preferred Time</label>
+                      <input
+                        type="time"
+                        value={time}
+                        onChange={(e) => setTime(e.target.value)}
+                        className="input text-center text-xl font-semibold max-w-[200px]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Bio */}
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-medium text-slate-900">Your Bio</h3>
+                    <textarea
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      placeholder="Tell us about yourself..."
+                      rows={4}
+                      maxLength={500}
+                      className="input resize-none"
+                    />
+                    <div className="text-right text-sm text-slate-400">
+                      {bio.length}/500
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            {/* My Profile Section */}
             <div className="card overflow-hidden transition-all duration-300">
               <button
                 onClick={() => toggleSection('profile')}
                 className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-xl">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xl">
                     👤
                   </div>
                   <div className="text-left">
-                    <h2 className="text-xl font-semibold text-slate-900">Your Profile</h2>
-                    <p className="text-sm text-slate-500">Bio and personal details</p>
+                    <h2 className="text-xl font-semibold text-slate-900">My Profile</h2>
+                    <p className="text-sm text-slate-500">Username, Name, Email</p>
                   </div>
                 </div>
                 <svg
@@ -185,147 +336,50 @@ export default function SettingsPage() {
                   }`}
               >
                 <div className="p-6 pt-0 border-t border-slate-100">
-                  <div className="mt-4 space-y-4">
-                    <label className="block text-sm font-medium text-slate-700">Your Bio</label>
-                    <textarea
-                      value={bio}
-                      onChange={(e) => setBio(e.target.value)}
-                      placeholder="Tell us about yourself..."
-                      rows={5}
-                      maxLength={500}
-                      className="input resize-none"
-                    />
-                    <div className="text-right text-sm text-slate-400">
-                      {bio.length}/500
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+                  <div className="mt-6 space-y-6">
 
-            {/* Topics Section */}
-            <div className="card overflow-hidden transition-all duration-300">
-              <button
-                onClick={() => toggleSection('topics')}
-                className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xl">
-                    📚
-                  </div>
-                  <div className="text-left">
-                    <h2 className="text-xl font-semibold text-slate-900">Learning Topics</h2>
-                    <p className="text-sm text-slate-500">Select up to 3 topics ({topics.length}/3)</p>
-                  </div>
-                </div>
-                <svg
-                  className={`w-6 h-6 text-slate-400 transition-transform duration-300 ${activeSection === 'topics' ? 'rotate-180' : ''
-                    }`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              <div
-                className={`transition-all duration-300 ease-in-out ${activeSection === 'topics' ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
-                  }`}
-              >
-                <div className="p-6 pt-0 border-t border-slate-100">
-                  <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {TOPICS.map((topic) => {
-                      const isSelected = topics.includes(topic);
-                      const isDisabled = !isSelected && topics.length >= 3;
-
-                      return (
-                        <button
-                          key={topic}
-                          onClick={() => toggleTopic(topic)}
-                          disabled={isDisabled}
-                          className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${isSelected
-                            ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md transform scale-105'
-                            : isDisabled
-                              ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                              : 'bg-white border-2 border-slate-200 hover:border-primary-300 hover:shadow-sm'
-                            }`}
-                        >
-                          {topic}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Schedule Section */}
-            <div className="card overflow-hidden transition-all duration-300">
-              <button
-                onClick={() => toggleSection('schedule')}
-                className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xl">
-                    ⏰
-                  </div>
-                  <div className="text-left">
-                    <h2 className="text-xl font-semibold text-slate-900">Schedule & Time</h2>
-                    <p className="text-sm text-slate-500">When do you want to learn?</p>
-                  </div>
-                </div>
-                <svg
-                  className={`w-6 h-6 text-slate-400 transition-transform duration-300 ${activeSection === 'schedule' ? 'rotate-180' : ''
-                    }`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              <div
-                className={`transition-all duration-300 ease-in-out ${activeSection === 'schedule' ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
-                  }`}
-              >
-                <div className="p-6 pt-0 border-t border-slate-100">
-                  <div className="mt-4 space-y-6">
-                    <div className="space-y-3">
-                      <label className="block text-sm font-medium text-slate-700">Reading Days</label>
-                      <div className="grid gap-3">
-                        {READING_DAYS.map((option) => (
-                          <button
-                            key={option.value}
-                            onClick={() => setSchedule(option.value)}
-                            className={`w-full p-4 rounded-xl text-left transition-all ${schedule === option.value
-                              ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md'
-                              : 'bg-white border-2 border-slate-200 hover:border-primary-300'
-                              }`}
-                          >
-                            <div className="font-semibold">{option.label}</div>
-                            <div className={`text-sm ${schedule === option.value ? 'text-purple-100' : 'text-slate-500'}`}>
-                              {option.description}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <label className="block text-sm font-medium text-slate-700">Preferred Time</label>
+                    {/* Username */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-slate-700">Username</label>
                       <input
-                        type="time"
-                        value={time}
-                        onChange={(e) => setTime(e.target.value)}
-                        className="input text-center text-xl font-semibold"
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="input"
+                        placeholder="username"
+                      />
+                      <p className="text-xs text-slate-500">Unique identifier for your profile.</p>
+                    </div>
+
+                    {/* Full Name */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-slate-700">Full Name</label>
+                      <input
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        className="input"
+                        placeholder="John Doe"
                       />
                     </div>
+
+                    {/* Email (Read Only) */}
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-slate-700">Email Address</label>
+                      <input
+                        type="email"
+                        value={email}
+                        disabled
+                        className="input bg-slate-50 text-slate-500 cursor-not-allowed"
+                      />
+                      <p className="text-xs text-slate-500">Email cannot be changed.</p>
+                    </div>
+
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </main>
