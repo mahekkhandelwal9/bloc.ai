@@ -194,7 +194,7 @@ export default function DashboardPage() {
 
                     {/* Generate Bonus Bloc Button */}
                     {!loading && (
-                        <div className="card p-8 text-center space-y-6 animate-fade-in
+                        <div className="glass-card p-8 text-center space-y-6 animate-fade-in
                                       hover:shadow-xl transition-all duration-300 relative">
                             <div className="space-y-2">
                                 <h2 className="text-2xl font-bold text-slate-900">
@@ -271,7 +271,7 @@ export default function DashboardPage() {
 
                     {/* First Day Empty State */}
                     {isFirstDay && blocs.length === 0 && (
-                        <div className="card p-8 md:p-12 text-center space-y-6 animate-fade-in">
+                        <div className="glass-card p-8 md:p-12 text-center space-y-6 animate-fade-in">
                             <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-primary-100 to-accent-100 flex items-center justify-center">
                                 <span className="text-4xl">👋</span>
                             </div>
@@ -304,7 +304,7 @@ export default function DashboardPage() {
 
                     {/* No blocs today */}
                     {!isFirstDay && blocs.length === 0 && (
-                        <div className="card p-8 text-center space-y-4">
+                        <div className="glass-card p-8 text-center space-y-4">
                             <p className="text-lg text-slate-600">
                                 No Blocs scheduled for today based on your reading preferences.
                             </p>
@@ -330,7 +330,7 @@ function BlocCard({
     return (
         <Link
             href={`/bloc/${bloc.id}`}
-            className="card-hover p-6 md:p-8 space-y-4 group"
+            className="glass-card p-6 md:p-8 space-y-4 group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
         >
             <div className="flex items-start justify-between gap-4">
                 <div className="space-y-3 flex-1">

@@ -13,8 +13,12 @@
   }
 
   body {
-    @apply bg-gradient-to-br from-white via-purple-50/30 to-white text-slate-900 font-sans antialiased min-h-screen;
+    @apply bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-slate-900 font-sans antialiased min-h-screen;
     font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl rounded-2xl;
   }
 
   /* Typography */

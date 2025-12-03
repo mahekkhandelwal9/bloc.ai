@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
         // Fetch user
         const { data: user, error } = await supabase
             .from('users')
-            .select('*')
+            .select('id, password_hash')
             .eq('email', email)
             .single();
 

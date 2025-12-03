@@ -40,7 +40,7 @@ export async function requireAuth() {
 export async function checkOnboardingStatus(userId: string) {
     const { data, error } = await supabase
         .from('user_preferences')
-        .select('*')
+        .select('user_id')
         .eq('user_id', userId)
         .single();
 

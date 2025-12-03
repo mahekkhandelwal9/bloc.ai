@@ -190,7 +190,7 @@ export default function SettingsPage() {
 
           <div className="space-y-4">
             {/* My Preferences Section */}
-            <div className="card overflow-hidden transition-all duration-300">
+            <div className="glass-card overflow-hidden transition-all duration-300">
               <button
                 onClick={() => toggleSection('preferences')}
                 className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"
@@ -301,7 +301,7 @@ export default function SettingsPage() {
             </div>
 
             {/* My Profile Section */}
-            <div className="card overflow-hidden transition-all duration-300">
+            <div className="glass-card overflow-hidden transition-all duration-300">
               <button
                 onClick={() => toggleSection('profile')}
                 className="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors"

@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
         // Check if preferences already exist
         const { data: existing } = await supabase
             .from('user_preferences')
-            .select('*')
+            .select('user_id')
             .eq('user_id', userId)
             .single();
 

@@ -138,7 +138,7 @@ export async function updateStreak(userId: string) {
 export async function getReadingHistory(userId: string, limit = 30) {
     const { data, error } = await supabase
         .from('reading_history')
-        .select('*, blocs(*)')
+        .select('bloc_id, completed_at, blocs(id, topic, title, scheduled_date)')
         .eq('user_id', userId)
         .order('completed_at', { ascending: false })
         .limit(limit);

@@ -193,7 +193,7 @@ export default function Home() {
                                 </div>
                             </button>
                         ) : (
-                            <div className="w-full max-w-md bg-white/50 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-white/50 animate-fade-in">
+                            <div className="w-full max-w-md glass-card rounded-3xl p-6 animate-fade-in">
                                 {step === 'email' ? (
                                     <form onSubmit={handleEmailSubmit} className="space-y-4">
                                         <div className="space-y-2 text-left">
