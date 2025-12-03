@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
     const router = useRouter();
@@ -13,6 +13,7 @@ export default function Home() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [scrollY, setScrollY] = useState(0);
 
     useEffect(() => {
         // Check if user is logged in
@@ -23,9 +24,16 @@ export default function Home() {
         };
         checkAuth();
 
+        // Parallax scroll effect
+        const handleScroll = () => {
+            setScrollY(window.scrollY);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
         // Scroll reveal animation
         const observerOptions = {
-            threshold: 0.1,
+            threshold: 0.15,
             rootMargin: '0px 0px -100px 0px'
         };
 
@@ -37,10 +45,15 @@ export default function Home() {
             });
         }, observerOptions);
 
-        const scrollElements = document.querySelectorAll('.scroll-reveal');
-        scrollElements.forEach(el => observer.observe(el));
+        setTimeout(() => {
+            const scrollElements = document.querySelectorAll('.scroll-reveal');
+            scrollElements.forEach(el => observer.observe(el));
+        }, 100);
 
-        return () => observer.disconnect();
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            observer.disconnect();
+        };
     }, []);
 
     const handleLogout = async () => {
@@ -204,10 +217,10 @@ export default function Home() {
         <>
             <LoginModal />
 
-            <main className="min-h-screen bg-slate-900">
+            <main className="min-h-screen bg-slate-900 overflow-hidden">
                 {/* Header */}
-                <header className="fixed top-0 left-0 right-0 z-40 bg-slate-900/80 backdrop-blur-xl border-b border-white/10">
-                    <div className="container-custom py-4 flex justify-between items-center">
+                <header className="fixed top-0 left-0 right-0 z-40 bg-slate-900/60 backdrop-blur-xl border-b border-white/5">
+                    <div className="container-custom py-5 flex justify-between items-center">
                         <div className="text-2xl font-bold">
                             <span className="cyber-gradient-text">Bloc</span>
                             <span className="text-white">.ai</span>
@@ -229,25 +242,36 @@ export default function Home() {
                     </div>
                 </header>
 
-                {/* Hero Section */}
-                <section className="relative pt-32 pb-24 md:pt-40 md:pb-32 overflow-hidden blob-bg">
-                    <div className="container-custom relative z-10">
-                        <div className="max-w-5xl mx-auto text-center space-y-8">
-                            <div className="inline-block px-6 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-sm font-medium mb-4 animate-scale-in">
-                                📚 The Future of Reading is Here
+                {/* Hero Section - Full Viewport */}
+                <section className="relative min-h-screen flex items-center justify-center blob-bg">
+                    <div
+                        className="absolute inset-0 opacity-30"
+                        style={{
+                            transform: `translateY(${scrollY * 0.5}px)`
+                        }}
+                    >
+                        <div className="absolute top-20 left-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl opacity-40 floating"></div>
+                        <div className="absolute bottom-20 right-10 w-96 h-96 bg-pink-500 rounded-full blur-3xl opacity-40 floating-slow"></div>
+                        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-30 floating" style={{ animationDelay: '1s' }}></div>
+                    </div>
+
+                    <div className="container-custom relative z-10 text-center">
+                        <div className="max-w-5xl mx-auto space-y-10">
+                            <div className="inline-block px-6 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-sm font-medium mb-6 animate-scale-in">
+                                📚 The Future of Reading
                             </div>
                             <h1 className="font-bold leading-tight text-white animate-fade-in-up">
                                 Read <span className="cyber-gradient-text text-glow">Smarter</span>,<br />
                                 Not Harder
                             </h1>
-                            <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto leading-relaxed" style={{ animationDelay: '0.1s' }}>
-                                AI-powered 10-minute knowledge blocs, personalized daily. <br className="hidden md:block" />
-                                Build your reading streak, expand your mind, level up.
+                            <p className="text-2xl md:text-3xl text-slate-300 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                                10-minute AI-powered knowledge blocs.<br />
+                                Personalized daily. Build your streak.
                             </p>
 
                             {isLoggedIn ? (
-                                <Link href="/dashboard" className="btn-cyber inline-block" style={{ animationDelay: '0.2s' }}>
-                                    Let's Read →
+                                <Link href="/dashboard" className="btn-cyber inline-block animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                                    Start Reading →
                                 </Link>
                             ) : (
                                 <button onClick={openLogin} className="btn-cyber animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
@@ -255,247 +279,150 @@ export default function Home() {
                                 </button>
                             )}
 
-                            <div className="flex flex-wrap items-center justify-center gap-8 pt-8 text-sm text-slate-400">
+                            <div className="flex flex-wrap items-center justify-center gap-10 pt-12 text-slate-400 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                                 <div className="flex items-center gap-3">
-                                    <span className="text-3xl">⚡</span>
-                                    <span>10 min reads</span>
+                                    <span className="text-4xl">⚡</span>
+                                    <span className="text-lg">10 min reads</span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="text-3xl">🤖</span>
-                                    <span>AI-personalized</span>
+                                    <span className="text-4xl">🤖</span>
+                                    <span className="text-lg">AI-personalized</span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="text-3xl">🔥</span>
-                                    <span>Streak-based</span>
+                                    <span className="text-4xl">🔥</span>
+                                    <span className="text-lg">Streak-based</span>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Floating blobs */}
-                        <div className="absolute top-20 left-10 w-32 h-32 bg-purple-500 rounded-full blur-3xl opacity-20 floating"></div>
-                        <div className="absolute bottom-20 right-10 w-40 h-40 bg-pink-500 rounded-full blur-3xl opacity-20 floating-slow"></div>
-                        <div className="absolute top-40 right-1/4 w-24 h-24 bg-blue-500 rounded-full blur-2xl opacity-30 floating" style={{ animationDelay: '1s' }}></div>
+                    {/* Scroll indicator */}
+                    <div className="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce">
+                        <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        </svg>
                     </div>
                 </section>
 
-                {/* Why Reading Section */}
-                <section className="py-24 md:py-32 bg-slate-950">
+                {/* Why Reading - Centered Quote */}
+                <section className="py-40 bg-slate-950 relative">
+                    <div
+                        className="container-custom text-center"
+                        style={{
+                            transform: `translateY(${scrollY * 0.1}px)`
+                        }}
+                    >
+                        <div className="max-w-4xl mx-auto scroll-reveal">
+                            <div className="text-8xl mb-10">💡</div>
+                            <blockquote className="text-4xl md:text-5xl font-bold text-slate-200 mb-8 leading-tight">
+                                "The more that you read, the more things you will know."
+                            </blockquote>
+                            <p className="text-xl text-purple-400">— Dr. Seuss</p>
+
+                            <div className="mt-20 grid grid-cols-3 gap-12 max-w-2xl mx-auto">
+                                <div className="scroll-reveal" style={{ animationDelay: '0.1s' }}>
+                                    <div className="text-5xl font-bold cyber-gradient-text mb-2">500+</div>
+                                    <div className="text-sm text-slate-400">Pages Warren Buffett reads daily</div>
+                                </div>
+                                <div className="scroll-reveal" style={{ animationDelay: '0.2s' }}>
+                                    <div className="text-5xl font-bold cyber-gradient-text mb-2">50+</div>
+                                    <div className="text-sm text-slate-400">Books Bill Gates reads yearly</div>
+                                </div>
+                                <div className="scroll-reveal" style={{ animationDelay: '0.3s' }}>
+                                    <div className="text-5xl font-bold cyber-gradient-text mb-2">10</div>
+                                    <div className="text-sm text-slate-400">Minutes with Bloc.ai</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* How It Works - Horizontal Flow */}
+                <section className="py-40 bg-gradient-to-b from-slate-950 to-slate-900 relative overflow-hidden">
                     <div className="container-custom">
-                        <div className="text-center mb-16 scroll-reveal">
-                            <h2 className="text-5xl md:text-6xl font-bold mb-6 text-white">
-                                <span className="cyber-gradient-text">Reading</span> is Your Superpower
+                        <div className="text-center mb-24 scroll-reveal">
+                            <h2 className="text-6xl md:text-7xl font-bold text-white mb-6">
+                                How <span className="cyber-gradient-text text-glow">Bloc.ai</span> Works
                             </h2>
-                            <p className="text-xl text-slate-400">The world's most successful people are readers. Join them.</p>
+                            <p className="text-2xl text-slate-400">Three steps to smarter reading</p>
                         </div>
 
-                        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                            <div className="neon-card scroll-reveal" style={{ animationDelay: '0.1s' }}>
-                                <div className="text-5xl mb-6">🧠</div>
-                                <blockquote className="text-lg italic text-slate-300 mb-4 leading-relaxed">
-                                    "The more that you read, the more things you will know. The more that you learn, the more places you'll go."
-                                </blockquote>
-                                <p className="text-sm font-bold text-purple-400">— Dr. Seuss</p>
-                            </div>
-
-                            <div className="neon-card scroll-reveal" style={{ animationDelay: '0.2s' }}>
-                                <div className="text-5xl mb-6">💡</div>
-                                <blockquote className="text-lg italic text-slate-300 mb-4 leading-relaxed">
-                                    "Reading fuels a sense of curiosity about the world, which I think helped drive me forward."
-                                </blockquote>
-                                <p className="text-sm font-bold text-purple-400">— Bill Gates</p>
-                            </div>
-
-                            <div className="neon-card scroll-reveal" style={{ animationDelay: '0.3s' }}>
-                                <div className="text-5xl mb-6">🚀</div>
-                                <blockquote className="text-lg italic text-slate-300 mb-4 leading-relaxed">
-                                    "I was raised by books. Books, and then my parents."
-                                </blockquote>
-                                <p className="text-sm font-bold text-purple-400">— Elon Musk</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* The Problem Section */}
-                <section className="section-dark">
-                    <div className="container-custom">
-                        <div className="max-w-5xl mx-auto">
-                            <div className="text-center mb-16 scroll-reveal">
-                                <h2 className="text-5xl md:text-6xl font-bold mb-6 text-white">
-                                    But Let's Be <span className="cyber-gradient-text text-glow">Real</span>...
-                                </h2>
-                                <p className="text-xl text-slate-400">Traditional reading apps fail you</p>
-                            </div>
-
-                            <div className="grid md:grid-cols-3 gap-8">
-                                <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 scroll-reveal" style={{ animationDelay: '0.1s' }}>
-                                    <div className="text-6xl mb-6">📚</div>
-                                    <h3 className="text-2xl font-bold mb-4 text-white">Too Many Choices</h3>
-                                    <p className="text-slate-400 leading-relaxed">Endless book lists. Analysis paralysis. You never actually start reading.</p>
+                        <div className="max-w-6xl mx-auto">
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-16">
+                                {/* Step 1 */}
+                                <div className="flex-1 text-center scroll-reveal" style={{ animationDelay: '0.1s' }}>
+                                    <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-purple">
+                                        🎯
+                                    </div>
+                                    <h3 className="text-3xl font-bold text-white mb-4">Choose Topics</h3>
+                                    <p className="text-xl text-slate-400">Pick 3 topics you're curious about</p>
                                 </div>
 
-                                <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 scroll-reveal" style={{ animationDelay: '0.2s' }}>
-                                    <div className="text-6xl mb-6">⏰</div>
-                                    <h3 className="text-2xl font-bold mb-4 text-white">No Time</h3>
-                                    <p className="text-slate-400 leading-relaxed">Full books feel overwhelming. 300 pages? Who has time for that?</p>
+                                {/* Arrow */}
+                                <div className="hidden md:block text-slate-600 text-4xl">→</div>
+
+                                {/* Step 2 */}
+                                <div className="flex-1 text-center scroll-reveal" style={{ animationDelay: '0.2s' }}>
+                                    <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-pink-500 to-blue-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-pink">
+                                        🤖
+                                    </div>
+                                    <h3 className="text-3xl font-bold text-white mb-4">AI Generates</h3>
+                                    <p className="text-xl text-slate-400">Daily personalized 10-min blocs</p>
                                 </div>
 
-                                <div className="bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 scroll-reveal" style={{ animationDelay: '0.3s' }}>
-                                    <div className="text-6xl mb-6">💤</div>
-                                    <h3 className="text-2xl font-bold mb-4 text-white">Lose Interest</h3>
-                                    <p className="text-slate-400 leading-relaxed">Start strong, quit halfway. No accountability. No consistency system.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                                {/* Arrow */}
+                                <div className="hidden md:block text-slate-600 text-4xl">→</div>
 
-                {/* How It Works Section */}
-                <section className="py-24 md:py-32 bg-slate-950 relative overflow-hidden">
-                    <div className="container-custom relative z-10">
-                        <div className="text-center mb-20 scroll-reveal">
-                            <h2 className="text-5xl md:text-6xl font-bold mb-6 text-white">
-                                Meet <span className="cyber-gradient-text text-glow">Bloc.ai</span>
-                            </h2>
-                            <p className="text-xl text-slate-400">Your personal reading coach, powered by AI</p>
-                        </div>
-
-                        <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
-                            <div className="glass-card text-center space-y-6 hover:shadow-2xl transition-all duration-500 scroll-reveal hover:scale-105" style={{ animationDelay: '0.1s' }}>
-                                <div className="w-20 h-20 mx-auto bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center text-white text-3xl font-bold glow-purple">
-                                    1
+                                {/* Step 3 */}
+                                <div className="flex-1 text-center scroll-reveal" style={{ animationDelay: '0.3s' }}>
+                                    <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-blue">
+                                        🔥
+                                    </div>
+                                    <h3 className="text-3xl font-bold text-white mb-4">Build Streak</h3>
+                                    <p className="text-xl text-slate-400">Track progress, stay consistent</p>
                                 </div>
-                                <h3 className="text-3xl font-bold text-white">Choose Your Vibe</h3>
-                                <p className="text-slate-400 leading-relaxed">Pick 3 topics you're curious about. AI, Psychology, Business—whatever sparks your interest.</p>
-                                <div className="text-5xl">🎯</div>
-                            </div>
-
-                            <div className="glass-card text-center space-y-6 hover:shadow-2xl transition-all duration-500 scroll-reveal hover:scale-105" style={{ animationDelay: '0.2s' }}>
-                                <div className="w-20 h-20 mx-auto bg-gradient-to-br from-pink-500 to-blue-500 rounded-3xl flex items-center justify-center text-white text-3xl font-bold glow-pink">
-                                    2
-                                </div>
-                                <h3 className="text-3xl font-bold text-white">AI Delivers Daily</h3>
-                                <p className="text-slate-400 leading-relaxed">Every day, get a personalized 10-minute 'Bloc' tailored to your interests and reading level.</p>
-                                <div className="text-5xl">🤖</div>
-                            </div>
-
-                            <div className="glass-card text-center space-y-6 hover:shadow-2xl transition-all duration-500 scroll-reveal hover:scale-105" style={{ animationDelay: '0.3s' }}>
-                                <div className="w-20 h-20 mx-auto bg-gradient-to-br from-blue-500 to-purple-500 rounded-3xl flex items-center justify-center text-white text-3xl font-bold glow-blue">
-                                    3
-                                </div>
-                                <h3 className="text-3xl font-bold text-white">Build Your Streak</h3>
-                                <p className="text-slate-400 leading-relaxed">Track your progress, maintain consistency, and watch your knowledge compound over time.</p>
-                                <div className="text-5xl">🔥</div>
                             </div>
                         </div>
                     </div>
 
                     {/* Background decoration */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-500/10 rounded-full blur-3xl"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-purple-500/5 rounded-full blur-3xl"></div>
                 </section>
 
-                {/* Features Section */}
-                <section className="py-24 md:py-32 bg-gradient-to-b from-slate-900 to-slate-950">
-                    <div className="container-custom">
-                        <div className="text-center mb-20 scroll-reveal">
-                            <h2 className="text-5xl md:text-6xl font-bold mb-6 text-white">
-                                Why <span className="cyber-gradient-text text-glow">Bloc.ai</span>?
-                            </h2>
-                            <p className="text-xl text-slate-400">Reading, but make it addictive</p>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-                            <div className="group p-10 bg-gradient-to-br from-purple-500/20 to-purple-500/5 rounded-3xl border border-purple-500/30 hover:border-purple-500/60 transition-all duration-500 hover:-translate-y-3 scroll-reveal" style={{ animationDelay: '0.1s' }}>
-                                <div className="text-6xl mb-6 group-hover:scale-110 transition-transform duration-300">✨</div>
-                                <h3 className="text-2xl font-bold mb-4 text-white">Personalized AF</h3>
-                                <p className="text-slate-400 leading-relaxed">AI tailors every Bloc to YOUR interests, YOUR level, YOUR goals.</p>
-                            </div>
-
-                            <div className="group p-10 bg-gradient-to-br from-pink-500/20 to-pink-500/5 rounded-3xl border border-pink-500/30 hover:border-pink-500/60 transition-all duration-500 hover:-translate-y-3 scroll-reveal" style={{ animationDelay: '0.2s' }}>
-                                <div className="text-6xl mb-6 group-hover:scale-110 transition-transform duration-300">⚡</div>
-                                <h3 className="text-2xl font-bold mb-4 text-white">Bite-Sized</h3>
-                                <p className="text-slate-400 leading-relaxed">10 minutes max. Fits into your coffee break, commute, or lunch.</p>
-                            </div>
-
-                            <div className="group p-10 bg-gradient-to-br from-blue-500/20 to-blue-500/5 rounded-3xl border border-blue-500/30 hover:border-blue-500/60 transition-all duration-500 hover:-translate-y-3 scroll-reveal" style={{ animationDelay: '0.3s' }}>
-                                <div className="text-6xl mb-6 group-hover:scale-110 transition-transform duration-300">🔥</div>
-                                <h3 className="text-2xl font-bold mb-4 text-white">Streak Motivation</h3>
-                                <p className="text-slate-400 leading-relaxed">Gamified consistency. Build a reading habit that actually sticks.</p>
-                            </div>
-
-                            <div className="group p-10 bg-gradient-to-br from-lime-500/20 to-lime-500/5 rounded-3xl border border-lime-500/30 hover:border-lime-500/60 transition-all duration-500 hover:-translate-y-3 scroll-reveal" style={{ animationDelay: '0.4s' }}>
-                                <div className="text-6xl mb-6 group-hover:scale-110 transition-transform duration-300">🎨</div>
-                                <h3 className="text-2xl font-bold mb-4 text-white">Beautiful UX</h3>
-                                <p className="text-slate-400 leading-relaxed">Reading apps don't have to be boring. This one isn't.</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Social Proof Section */}
-                <section className="py-24 md:py-32 section-dark">
-                    <div className="container-custom">
-                        <div className="text-center mb-20 scroll-reveal">
-                            <h2 className="text-5xl md:text-6xl font-bold mb-6 text-white leading-tight">
-                                Reading = Compound Interest<br />for Your <span className="cyber-gradient-text text-glow">Mind</span>
-                            </h2>
-                            <p className="text-xl text-slate-400">Don't just take our word for it</p>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-                            <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-3xl p-10 hover:bg-white/10 transition-all duration-500 scroll-reveal" style={{ animationDelay: '0.1s' }}>
-                                <div className="text-7xl mb-6">📖</div>
-                                <blockquote className="text-2xl italic text-slate-300 mb-6 leading-relaxed">
-                                    "I just sit in my office and read all day... I read and think. So I read and think more than I talk and do."
-                                </blockquote>
-                                <p className="text-sm font-bold text-purple-400">— Warren Buffett (reads 500 pages/day)</p>
-                            </div>
-
-                            <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-3xl p-10 hover:bg-white/10 transition-all duration-500 scroll-reveal" style={{ animationDelay: '0.2s' }}>
-                                <div className="text-7xl mb-6">🌟</div>
-                                <blockquote className="text-2xl italic text-slate-300 mb-6 leading-relaxed">
-                                    "Books were my pass to personal freedom. I learned to read at age three, and soon discovered there was a whole world to conquer."
-                                </blockquote>
-                                <p className="text-sm font-bold text-purple-400">— Oprah Winfrey</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Final CTA Section */}
-                <section className="py-32 md:py-40 bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900 relative overflow-hidden">
+                {/* Final CTA - Full Viewport */}
+                <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900 relative overflow-hidden">
                     <div className="container-custom text-center relative z-10">
-                        <div className="max-w-4xl mx-auto space-y-10 scroll-reveal">
-                            <h2 className="text-6xl md:text-7xl font-bold leading-tight text-white">
+                        <div className="max-w-4xl mx-auto space-y-12 scroll-reveal">
+                            <h2 className="text-7xl md:text-8xl font-bold leading-tight text-white">
                                 Your Future Self<br />
                                 Will <span className="cyber-gradient-text text-glow">Thank You</span>
                             </h2>
-                            <p className="text-2xl md:text-3xl text-slate-300 leading-relaxed">
-                                Start building the reading habit today. <br className="hidden md:block" />
+                            <p className="text-3xl text-slate-300 leading-relaxed">
+                                Start building the reading habit today.<br />
                                 10 minutes is all it takes.
                             </p>
 
                             {isLoggedIn ? (
-                                <Link href="/dashboard" className="btn-cyber inline-block">
+                                <Link href="/dashboard" className="btn-cyber inline-block text-xl px-12 py-6">
                                     Go to Dashboard →
                                 </Link>
                             ) : (
-                                <button onClick={openLogin} className="btn-cyber">
-                                    Start Reading Now →
+                                <button onClick={openLogin} className="btn-cyber text-xl px-12 py-6">
+                                    Start Now, It's Free →
                                 </button>
                             )}
 
-                            <p className="text-sm text-slate-500">No credit card required • Start for free • Cancel anytime</p>
+                            <p className="text-sm text-slate-500">No credit card • Free forever • Cancel anytime</p>
                         </div>
                     </div>
 
                     {/* Decorative blobs */}
-                    <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl"></div>
+                    <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
                 </section>
 
                 {/* Footer */}
-                <footer className="py-12 bg-slate-950 border-t border-white/10">
+                <footer className="py-12 bg-slate-950 border-t border-white/5">
                     <div className="container-custom">
                         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                             <div className="text-2xl font-bold">
@@ -503,7 +430,7 @@ export default function Home() {
                                 <span className="text-white">.ai</span>
                             </div>
                             <p className="text-sm text-slate-500">
-                                © 2024 Bloc.ai • Building better readers, one bloc at a time
+                                © 2024 Bloc.ai • Building better readers
                             </p>
                             <div className="flex gap-6 text-sm text-slate-400">
                                 <a href="#" className="hover:text-white transition-colors">Privacy</a>
