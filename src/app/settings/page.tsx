@@ -10,7 +10,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [activeSection, setActiveSection] = useState<string | null>('preferences');
+  const [activeSection, setActiveSection] = useState<string | null>(null); // Closed by default
 
   // Preferences State
   const [bio, setBio] = useState('');
@@ -178,6 +178,19 @@ export default function SettingsPage() {
           </div>
         </div>
       </header>
+
+      {/* Edit Mode Banner */}
+      {isEditing && (
+        <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-4 animate-slide-down">
+          <div className="container-custom flex items-center justify-center gap-2">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <span className="font-medium">Edit Mode Active - Make your changes below</span>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="container-custom py-12">
