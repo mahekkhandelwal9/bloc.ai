@@ -187,6 +187,10 @@
   animation: slideDown 0.3s ease-out;
 }
 
+.animate-slide-up-exit {
+  animation: slideUpExit 0.3s ease-out;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -218,5 +222,17 @@
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@keyframes slideUpExit {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(-20px);
+    opacity: 0;
   }
 }

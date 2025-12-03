@@ -10,6 +10,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isExiting, setIsExiting] = useState(false); // For exit animation
   const [activeSection, setActiveSection] = useState<string | null>(null); // Closed by default
 
   // Preferences State
@@ -100,7 +101,13 @@ export default function SettingsPage() {
       alert('Failed to save settings');
     } finally {
       setSaving(false);
-      setIsEditing(false); // Exit edit mode after saving
+      // Trigger exit animation
+      setIsExiting(true);
+      // Wait for animation to complete before removing banner
+      setTimeout(() => {
+        setIsEditing(false);
+        setIsExiting(false);
+      }, 300); // Match animation duration
     }
   };
 
