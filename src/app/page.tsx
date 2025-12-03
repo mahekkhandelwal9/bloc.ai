@@ -45,13 +45,14 @@ export default function Home() {
 
             if (data.exists && data.hasPassword) {
                 setStep('password');
+                setLoading(false);
             } else {
                 // New user or legacy user -> Send OTP
+                setLoading(false);
                 await sendOtp();
             }
         } catch (err) {
             setError('Failed to verify email');
-        } finally {
             setLoading(false);
         }
     };
