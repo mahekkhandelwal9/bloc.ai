@@ -13,10 +13,16 @@ export default function Home() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showModal, setShowModal] = useState(false);
-    const [scrollY, setScrollY] = useState(0);
+    const [currentQuote, setCurrentQuote] = useState(0);
+
+    const quotes = [
+        { text: "The more that you read, the more things you will know.", author: "Dr. Seuss", emoji: "🧠" },
+        { text: "Reading fuels a sense of curiosity about the world.", author: "Bill Gates", emoji: "💡" },
+        { text: "I was raised by books. Books, and then my parents.", author: "Elon Musk", emoji: "🚀" },
+        { text: "I just sit in my office and read all day.", author: "Warren Buffett", emoji: "📖" }
+    ];
 
     useEffect(() => {
-        // Check if user is logged in
         const checkAuth = () => {
             const cookies = document.cookie.split(';');
             const hasAuthCookie = cookies.some(cookie => cookie.trim().startsWith('bloc_user_id='));
@@ -24,17 +30,24 @@ export default function Home() {
         };
         checkAuth();
 
-        // Parallax scroll effect
+        // Scroll-based quote change
         const handleScroll = () => {
-            setScrollY(window.scrollY);
+            const quotesSection = document.getElementById('quotes-section');
+            if (quotesSection) {
+                const rect = quotesSection.getBoundingClientRect();
+                const sectionHeight = quotesSection.offsetHeight;
+                const scrollInSection = -rect.top;
+                const progress = Math.max(0, Math.min(1, scrollInSection / (sectionHeight * 0.8)));
+                const quoteIndex = Math.floor(progress * quotes.length);
+                setCurrentQuote(Math.min(quoteIndex, quotes.length - 1));
+            }
         };
 
         window.addEventListener('scroll', handleScroll);
 
-        // Scroll reveal animation
         const observerOptions = {
-            threshold: 0.15,
-            rootMargin: '0px 0px -100px 0px'
+            threshold: 0.2,
+            rootMargin: '0px 0px -80px 0px'
         };
 
         const observer = new IntersectionObserver((entries) => {
@@ -54,7 +67,7 @@ export default function Home() {
             window.removeEventListener('scroll', handleScroll);
             observer.disconnect();
         };
-    }, []);
+    }, [quotes.length]);
 
     const handleLogout = async () => {
         await fetch('/api/auth/logout', { method: 'POST' });
@@ -141,7 +154,6 @@ export default function Home() {
         setError('');
     };
 
-    // Login Modal Component
     const LoginModal = () => {
         if (!showModal) return null;
 
@@ -217,9 +229,9 @@ export default function Home() {
         <>
             <LoginModal />
 
-            <main className="min-h-screen bg-slate-900 overflow-hidden">
+            <main className="min-h-screen bg-slate-900">
                 {/* Header */}
-                <header className="fixed top-0 left-0 right-0 z-40 bg-slate-900/60 backdrop-blur-xl border-b border-white/5">
+                <header className="fixed top-0 left-0 right-0 z-40 bg-slate-900/70 backdrop-blur-xl border-b border-white/5">
                     <div className="container-custom py-5 flex justify-between items-center">
                         <div className="text-2xl font-bold">
                             <span className="cyber-gradient-text">Bloc</span>
@@ -242,168 +254,204 @@ export default function Home() {
                     </div>
                 </header>
 
-                {/* Hero Section - Full Viewport */}
-                <section className="relative min-h-screen flex items-center justify-center blob-bg">
-                    <div
-                        className="absolute inset-0 opacity-30"
-                        style={{
-                            transform: `translateY(${scrollY * 0.5}px)`
-                        }}
-                    >
-                        <div className="absolute top-20 left-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl opacity-40 floating"></div>
-                        <div className="absolute bottom-20 right-10 w-96 h-96 bg-pink-500 rounded-full blur-3xl opacity-40 floating-slow"></div>
-                        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-30 floating" style={{ animationDelay: '1s' }}></div>
+                {/* Hero */}
+                <section className="relative h-screen flex items-center justify-center">
+                    <div className="absolute inset-0 opacity-20">
+                        <div className="absolute top-20 left-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl floating"></div>
+                        <div className="absolute bottom-20 right-10 w-96 h-96 bg-pink-500 rounded-full blur-3xl floating-slow"></div>
                     </div>
 
                     <div className="container-custom relative z-10 text-center">
-                        <div className="max-w-5xl mx-auto space-y-10">
-                            <div className="inline-block px-6 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-sm font-medium mb-6 animate-scale-in">
+                        <div className="max-w-5xl mx-auto space-y-8">
+                            <div className="inline-block px-6 py-2 bg-purple-500/15 border border-purple-500/25 rounded-full text-purple-300 text-sm font-medium animate-scale-in">
                                 📚 The Future of Reading
                             </div>
                             <h1 className="font-bold leading-tight text-white animate-fade-in-up">
                                 Read <span className="cyber-gradient-text text-glow">Smarter</span>,<br />
                                 Not Harder
                             </h1>
-                            <p className="text-2xl md:text-3xl text-slate-300 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                            <p className="text-2xl md:text-3xl text-slate-300 max-w-3xl mx-auto leading-relaxed" style={{ animation: 'fade-in-up 0.8s ease-out 0.1s both' }}>
                                 10-minute AI-powered knowledge blocs.<br />
                                 Personalized daily. Build your habit.
                             </p>
 
                             {isLoggedIn ? (
-                                <Link href="/dashboard" className="btn-cyber inline-block animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                                <Link href="/dashboard" className="btn-cyber inline-block" style={{ animation: 'fade-in-up 0.8s ease-out 0.2s both' }}>
                                     Start Reading →
                                 </Link>
                             ) : (
-                                <button onClick={openLogin} className="btn-cyber animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                                <button onClick={openLogin} className="btn-cyber" style={{ animation: 'fade-in-up 0.8s ease-out 0.2s both' }}>
                                     Start Reading Free →
                                 </button>
                             )}
                         </div>
                     </div>
+                </section>
 
-                    {/* Scroll indicator */}
-                    <div className="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce">
-                        <svg className="w-6 h-6 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                        </svg>
+                {/* Quotes Carousel */}
+                <section id="quotes-section" className="min-h-[300vh] bg-slate-950 relative">
+                    <div className="sticky top-0 h-screen flex items-center justify-center">
+                        <div className="container-custom text-center">
+                            <div className="max-w-4xl mx-auto">
+                                <div className="text-7xl mb-8 transition-all duration-700">{quotes[currentQuote].emoji}</div>
+                                <blockquote className="text-3xl md:text-5xl font-bold text-slate-200 mb-6 leading-tight transition-all duration-700">
+                                    "{quotes[currentQuote].text}"
+                                </blockquote>
+                                <p className="text-xl text-purple-400 transition-all duration-700">— {quotes[currentQuote].author}</p>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
-                {/* Why Reading - Centered Quote */}
-                <section className="py-40 bg-slate-950 relative">
-                    <div
-                        className="container-custom text-center"
-                        style={{
-                            transform: `translateY(${scrollY * 0.1}px)`
-                        }}
-                    >
-                        <div className="max-w-4xl mx-auto scroll-reveal">
-                            <div className="text-8xl mb-10">💡</div>
-                            <blockquote className="text-4xl md:text-5xl font-bold text-slate-200 mb-8 leading-tight">
-                                "The more that you read, the more things you will know."
-                            </blockquote>
-                            <p className="text-xl text-purple-400">— Dr. Seuss</p>
-
-                            <div className="mt-20 grid grid-cols-3 gap-12 max-w-2xl mx-auto">
+                {/* Stats Showcase */}
+                <section className="py-24 bg-gradient-to-b from-slate-950 to-slate-900">
+                    <div className="container-custom">
+                        <div className="max-w-5xl mx-auto">
+                            <div className="grid md:grid-cols-3 gap-12 text-center">
+                                <div className="scroll-reveal">
+                                    <div className="text-6xl font-bold cyber-gradient-text mb-3">12.5K+</div>
+                                    <div className="text-lg text-slate-400">Articles Created by AI</div>
+                                </div>
                                 <div className="scroll-reveal" style={{ animationDelay: '0.1s' }}>
-                                    <div className="text-5xl font-bold cyber-gradient-text mb-2">500+</div>
-                                    <div className="text-sm text-slate-400">Pages Warren Buffett reads daily</div>
+                                    <div className="text-6xl font-bold cyber-gradient-text mb-3">45K+</div>
+                                    <div className="text-lg text-slate-400">Articles Read</div>
                                 </div>
                                 <div className="scroll-reveal" style={{ animationDelay: '0.2s' }}>
-                                    <div className="text-5xl font-bold cyber-gradient-text mb-2">50+</div>
-                                    <div className="text-sm text-slate-400">Books Bill Gates reads yearly</div>
-                                </div>
-                                <div className="scroll-reveal" style={{ animationDelay: '0.3s' }}>
-                                    <div className="text-5xl font-bold cyber-gradient-text mb-2">10</div>
-                                    <div className="text-sm text-slate-400">Minutes with Bloc.ai</div>
+                                    <div className="text-6xl font-bold cyber-gradient-text mb-3">2.8K+</div>
+                                    <div className="text-lg text-slate-400">Happy Readers</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* How It Works - Horizontal Flow */}
-                <section className="py-40 bg-gradient-to-b from-slate-950 to-slate-900 relative overflow-hidden">
+                {/* Why Bloc - Founder Note */}
+                <section className="py-32 bg-slate-900">
                     <div className="container-custom">
-                        <div className="text-center mb-24 scroll-reveal">
-                            <h2 className="text-6xl md:text-7xl font-bold text-white mb-6">
-                                How <span className="cyber-gradient-text text-glow">Bloc.ai</span> Works
+                        <div className="max-w-4xl mx-auto">
+                            <div className="text-center mb-16 scroll-reveal">
+                                <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
+                                    Why <span className="cyber-gradient-text text-glow">Bloc.ai</span>?
+                                </h2>
+                                <p className="text-xl text-slate-400">A note from the founders</p>
+                            </div>
+
+                            <div className="glass-card p-10 md:p-12 scroll-reveal">
+                                <p className="text-xl text-slate-300 leading-relaxed mb-6">
+                                    We built Bloc.ai because we were tired of feeling guilty about not reading enough. The problem wasn't lack of interest—it was the overwhelming choice and time commitment.
+                                </p>
+                                <p className="text-xl text-slate-300 leading-relaxed mb-6">
+                                    Traditional reading apps throw entire books at you. We take a different approach: <span className="text-white font-semibold">bite-sized, AI-curated knowledge blocs</span> that fit into your actual life.
+                                </p>
+                                <p className="text-xl text-slate-300 leading-relaxed">
+                                    10 minutes a day. Personalized to your interests. Built into a habit you'll actually stick with. That's the Bloc.ai promise.
+                                </p>
+                                <div className="mt-8 pt-8 border-t border-white/10">
+                                    <p className="text-lg text-slate-400">— The Bloc.ai Team</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Problem → Solution */}
+                <section className="py-32 bg-gradient-to-b from-slate-900 to-slate-950">
+                    <div className="container-custom">
+                        <div className="max-w-5xl mx-auto text-center">
+                            <div className="scroll-reveal mb-20">
+                                <h2 className="text-5xl md:text-6xl font-bold text-white mb-8">
+                                    The <span className="cyber-gradient-text text-glow">Problem</span>
+                                </h2>
+                                <p className="text-2xl md:text-3xl text-slate-300 leading-relaxed">
+                                    Reading feels overwhelming.<br />Too many books. No time. No system.
+                                </p>
+                            </div>
+
+                            <div className="my-16 flex justify-center">
+                                <div className="text-5xl text-purple-500/40">↓</div>
+                            </div>
+
+                            <div className="scroll-reveal">
+                                <h2 className="text-5xl md:text-6xl font-bold text-white mb-8">
+                                    The <span className="cyber-gradient-text text-glow">Solution</span>
+                                </h2>
+                                <p className="text-2xl md:text-3xl text-slate-300 leading-relaxed">
+                                    <span className="cyber-gradient-text font-bold">Bloc.ai</span> delivers personalized 10-minute knowledge blocs.<br />
+                                    Daily. Curated by AI. Just for you.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* How AI Works */}
+                <section className="py-32 bg-slate-950">
+                    <div className="container-custom">
+                        <div className="text-center mb-20 scroll-reveal">
+                            <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
+                                How We <span className="cyber-gradient-text text-glow">Leverage AI</span>
                             </h2>
-                            <p className="text-2xl text-slate-400">Three steps to smarter reading</p>
+                            <p className="text-xl text-slate-400">Simplification for you. Exploration for all.</p>
                         </div>
 
                         <div className="max-w-6xl mx-auto">
-                            <div className="flex flex-col md:flex-row items-center justify-between gap-16">
-                                {/* Step 1 */}
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-12">
                                 <div className="flex-1 text-center scroll-reveal" style={{ animationDelay: '0.1s' }}>
-                                    <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-purple">
+                                    <div className="w-28 h-28 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-purple">
                                         🎯
                                     </div>
-                                    <h3 className="text-3xl font-bold text-white mb-4">Choose Topics</h3>
-                                    <p className="text-xl text-slate-400">Pick 3 topics you're curious about</p>
+                                    <h3 className="text-2xl font-bold text-white mb-3">Select Topics & Time</h3>
+                                    <p className="text-lg text-slate-400">Choose what you learn and when</p>
                                 </div>
 
-                                {/* Arrow */}
-                                <div className="hidden md:block text-slate-600 text-4xl">→</div>
+                                <div className="hidden md:block text-purple-500/30 text-4xl">→</div>
 
-                                {/* Step 2 */}
                                 <div className="flex-1 text-center scroll-reveal" style={{ animationDelay: '0.2s' }}>
-                                    <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-pink-500 to-blue-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-pink">
+                                    <div className="w-28 h-28 mx-auto mb-6 bg-gradient-to-br from-pink-500 to-blue-400 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-pink">
                                         🤖
                                     </div>
-                                    <h3 className="text-3xl font-bold text-white mb-4">AI Generates</h3>
-                                    <p className="text-xl text-slate-400">Daily personalized 10-min blocs</p>
+                                    <h3 className="text-2xl font-bold text-white mb-3">AI Creates Blocs</h3>
+                                    <p className="text-lg text-slate-400">Personalized 10-min reads daily</p>
                                 </div>
 
-                                {/* Arrow */}
-                                <div className="hidden md:block text-slate-600 text-4xl">→</div>
+                                <div className="hidden md:block text-purple-500/30 text-4xl">→</div>
 
-                                {/* Step 3 */}
                                 <div className="flex-1 text-center scroll-reveal" style={{ animationDelay: '0.3s' }}>
-                                    <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-blue">
-                                        🔥
+                                    <div className="w-28 h-28 mx-auto mb-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-blue">
+                                        🎁
                                     </div>
-                                    <h3 className="text-3xl font-bold text-white mb-4">Build Habit</h3>
-                                    <p className="text-xl text-slate-400">Track progress, stay consistent</p>
+                                    <h3 className="text-2xl font-bold text-white mb-3">Read & Collect Rewards</h3>
+                                    <p className="text-lg text-slate-400">Build consistency, track progress</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    {/* Background decoration */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-purple-500/5 rounded-full blur-3xl"></div>
                 </section>
 
-                {/* Final CTA - Full Viewport */}
-                <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900/30 to-slate-900 relative overflow-hidden">
+                {/* Final CTA */}
+                <section className="py-40 bg-gradient-to-b from-slate-950 to-slate-900 relative overflow-hidden">
                     <div className="container-custom text-center relative z-10">
-                        <div className="max-w-4xl mx-auto space-y-12 scroll-reveal">
-                            <h2 className="text-7xl md:text-8xl font-bold leading-tight text-white">
-                                Your Future Self<br />
-                                Will <span className="cyber-gradient-text text-glow">Thank You</span>
+                        <div className="max-w-5xl mx-auto space-y-10 scroll-reveal">
+                            <h2 className="text-6xl md:text-7xl font-bold leading-tight text-white">
+                                An App for Your<br />
+                                <span className="cyber-gradient-text text-glow">Future Self</span><br />
+                                to Thank You
                             </h2>
-                            <p className="text-3xl text-slate-300 leading-relaxed">
-                                Start building the reading habit today.<br />
-                                10 minutes is all it takes.
-                            </p>
 
                             {isLoggedIn ? (
                                 <Link href="/dashboard" className="btn-cyber inline-block text-xl px-12 py-6">
-                                    Go to Dashboard →
+                                    Start Your Journey →
                                 </Link>
                             ) : (
                                 <button onClick={openLogin} className="btn-cyber text-xl px-12 py-6">
-                                    Start Now, It's Free →
+                                    Start Your Journey →
                                 </button>
                             )}
-
-                            <p className="text-sm text-slate-500">No credit card • Free forever • Cancel anytime</p>
                         </div>
                     </div>
 
-                    {/* Decorative blobs */}
-                    <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+                    <div className="absolute top-0 left-0 w-96 h-96 bg-purple-500/15 rounded-full blur-3xl"></div>
+                    <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-500/15 rounded-full blur-3xl"></div>
                 </section>
 
                 {/* Footer */}
