@@ -188,7 +188,7 @@ export default function SettingsPage() {
 
       {/* Edit Mode Banner */}
       {isEditing && (
-        <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-4 animate-slide-down">
+        <div className={`sticky top-0 z-20 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-4 ${isExiting ? 'animate-slide-up-exit' : 'animate-slide-down'}`}>
           <div className="container-custom flex items-center justify-center gap-2">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
