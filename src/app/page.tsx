@@ -33,6 +33,9 @@ export default function Home() {
 
         // Scroll-based quote change and problem/solution transition
         const handleScroll = () => {
+            // Don't update scroll state when modal is open to prevent flicker
+            if (showModal) return;
+
             const quotesSection = document.getElementById('quotes-section');
             if (quotesSection) {
                 const rect = quotesSection.getBoundingClientRect();
@@ -43,7 +46,7 @@ export default function Home() {
                 setCurrentQuote(Math.min(quoteIndex, quotes.length - 1));
             }
 
-            // Problem/Solution transition
+            // Problem/Solution transition (section removed, but keeping for safety)
             const problemSection = document.getElementById('problem-solution-section');
             if (problemSection) {
                 const rect = problemSection.getBoundingClientRect();
@@ -78,7 +81,7 @@ export default function Home() {
             window.removeEventListener('scroll', handleScroll);
             observer.disconnect();
         };
-    }, [quotes.length]);
+    }, [showModal]); // Re-run when modal state changes
 
     const handleLogout = async () => {
         await fetch('/api/auth/logout', { method: 'POST' });
@@ -267,7 +270,7 @@ export default function Home() {
 
                 {/* Hero */}
                 <section className="relative h-screen flex items-center justify-center">
-                    <div className="absolute inset-0 opacity-20">
+                    <div className="absolute inset-0 opacity-15">
                         <div className="absolute top-20 left-10 w-96 h-96 bg-purple-500 rounded-full blur-3xl floating"></div>
                         <div className="absolute bottom-20 right-10 w-96 h-96 bg-pink-500 rounded-full blur-3xl floating-slow"></div>
                     </div>
@@ -275,15 +278,15 @@ export default function Home() {
                     <div className="container-custom relative z-10 text-center">
                         <div className="max-w-5xl mx-auto space-y-8">
                             <div className="inline-block px-6 py-2 bg-purple-500/15 border border-purple-500/25 rounded-full text-purple-300 text-sm font-medium animate-scale-in">
-                                📚 The Future of Reading
+                                📚 Your Reading Paradise Awaits
                             </div>
                             <h1 className="font-bold leading-tight text-white animate-fade-in-up">
                                 Read <span className="cyber-gradient-text text-glow">Smarter</span>,<br />
                                 Not Harder
                             </h1>
                             <p className="text-2xl md:text-3xl text-slate-300 max-w-3xl mx-auto leading-relaxed" style={{ animation: 'fade-in-up 0.8s ease-out 0.1s both' }}>
-                                10-minute AI-powered knowledge blocs.<br />
-                                Personalized daily. Build your habit.
+                                ✨ 10-minute AI-powered knowledge blocs.<br />
+                                🎯 Personalized daily. 🔥 Build your habit.
                             </p>
 
                             {isLoggedIn ? (
@@ -308,7 +311,7 @@ export default function Home() {
                                 <blockquote className="text-3xl md:text-5xl font-bold text-slate-200 mb-6 leading-tight transition-all duration-700">
                                     "{quotes[currentQuote].text}"
                                 </blockquote>
-                                <p className="text-xl text-purple-400 transition-all duration-700">— {quotes[currentQuote].author}</p>
+                                <p className="text-xl text-amber-400 transition-all duration-700">— {quotes[currentQuote].author}</p>
                             </div>
                         </div>
                     </div>
@@ -322,23 +325,27 @@ export default function Home() {
                                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
                                     By the <span className="cyber-gradient-text text-glow">Numbers</span>
                                 </h2>
-                                <p className="text-xl text-slate-400">Growing every day</p>
+                                <p className="text-xl text-slate-400">📈 Growing every day</p>
                             </div>
 
                             <div className="grid md:grid-cols-4 gap-12 text-center">
                                 <div className="scroll-reveal">
+                                    <div className="text-5xl mb-4">📝</div>
                                     <div className="text-5xl md:text-6xl font-bold cyber-gradient-text mb-3">200K+</div>
                                     <div className="text-lg text-slate-400">Blocs Made</div>
                                 </div>
                                 <div className="scroll-reveal" style={{ animationDelay: '0.1s' }}>
+                                    <div className="text-5xl mb-4">📖</div>
                                     <div className="text-5xl md:text-6xl font-bold cyber-gradient-text mb-3">110K+</div>
                                     <div className="text-lg text-slate-400">Blocs Read</div>
                                 </div>
                                 <div className="scroll-reveal" style={{ animationDelay: '0.2s' }}>
+                                    <div className="text-5xl mb-4">🔗</div>
                                     <div className="text-5xl md:text-6xl font-bold cyber-gradient-text mb-3">15K+</div>
                                     <div className="text-lg text-slate-400">Blocs Shared</div>
                                 </div>
                                 <div className="scroll-reveal" style={{ animationDelay: '0.3s' }}>
+                                    <div className="text-5xl mb-4">😊</div>
                                     <div className="text-5xl md:text-6xl font-bold cyber-gradient-text mb-3">2K+</div>
                                     <div className="text-lg text-slate-400">Happy Readers</div>
                                 </div>
@@ -352,6 +359,7 @@ export default function Home() {
                     <div className="container-custom">
                         <div className="max-w-4xl mx-auto">
                             <div className="text-center mb-16 scroll-reveal">
+                                <div className="text-6xl mb-6">💌</div>
                                 <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
                                     Why <span className="cyber-gradient-text text-glow">Bloc.ai</span>?
                                 </h2>
@@ -360,61 +368,72 @@ export default function Home() {
 
                             <div className="glass-card p-10 md:p-12 scroll-reveal">
                                 <p className="text-xl text-slate-300 leading-relaxed mb-6">
-                                    We built Bloc.ai because we were tired of feeling guilty about not reading enough. The problem wasn't lack of interest—it was the overwhelming choice and time commitment.
+                                    📚 We built Bloc.ai because we were tired of feeling guilty about not reading enough. The problem wasn't lack of interest—it was the overwhelming choice and time commitment.
                                 </p>
                                 <p className="text-xl text-slate-300 leading-relaxed mb-6">
-                                    Traditional reading apps throw entire books at you. We take a different approach: <span className="text-white font-semibold">bite-sized, AI-curated knowledge blocs</span> that fit into your actual life.
+                                    ⚡ Traditional reading apps throw entire books at you. We take a different approach: <span className="text-white font-semibold">bite-sized, AI-curated knowledge blocs</span> that fit into your actual life.
                                 </p>
                                 <p className="text-xl text-slate-300 leading-relaxed">
-                                    10 minutes a day. Personalized to your interests. Built into a habit you'll actually stick with. That's the Bloc.ai promise.
+                                    ✨ 10 minutes a day. Personalized to your interests. Built into a habit you'll actually stick with. That's the Bloc.ai promise.
                                 </p>
                                 <div className="mt-8 pt-8 border-t border-white/10">
-                                    <p className="text-lg text-slate-400">— The Bloc.ai Team</p>
+                                    <p className="text-lg text-slate-400">— The Bloc.ai Team 🚀</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* Problem → Solution (scroll-triggered transition) */}
-                <section id="problem-solution-section" className="min-h-[300vh] bg-gradient-to-b from-slate-900 to-slate-950 relative">
-                    <div className="sticky top-0 h-screen flex items-center justify-center">
-                        <div className="container-custom text-center relative">
-                            <div className="max-w-5xl mx-auto">
-                                {/* Problem (fades out on scroll) */}
-                                <div
-                                    className="absolute inset-0 flex items-center justify-center transition-opacity duration-700"
-                                    style={{
-                                        opacity: scrollProgress < 0.5 ? 1 : 0,
-                                        pointerEvents: scrollProgress < 0.5 ? 'auto' : 'none'
-                                    }}
-                                >
-                                    <div>
-                                        <h2 className="text-5xl md:text-6xl font-bold text-white mb-8">
-                                            The <span className="cyber-gradient-text text-glow">Problem</span>
-                                        </h2>
-                                        <p className="text-2xl md:text-3xl text-slate-300 leading-relaxed">
-                                            Reading feels overwhelming.<br />Too many books. No time. No system.
-                                        </p>
+                {/* Problem → Solution */}
+                <section className="py-32 bg-gradient-to-b from-slate-900 to-slate-950">
+                    <div className="container-custom">
+                        <div className="max-w-6xl mx-auto">
+                            <div className="grid md:grid-cols-2 gap-12">
+                                {/* Problem */}
+                                <div className="problem-card scroll-reveal">
+                                    <div className="text-6xl mb-6">😰</div>
+                                    <h3 className="text-4xl font-bold text-red-300 mb-6">The Problem</h3>
+                                    <div className="space-y-4 text-lg text-slate-300">
+                                        <div className="flex items-start gap-3">
+                                            <span className="text-2xl">📚</span>
+                                            <p>Too many books, too little time</p>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <span className="text-2xl">😵</span>
+                                            <p>Overwhelming choices paralyze you</p>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <span className="text-2xl">⏰</span>
+                                            <p>Can't commit to long reading sessions</p>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <span className="text-2xl">😔</span>
+                                            <p>Feel guilty about not reading enough</p>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Solution (fades in on scroll) */}
-                                <div
-                                    className="absolute inset-0 flex items-center justify-center transition-opacity duration-700"
-                                    style={{
-                                        opacity: scrollProgress >= 0.5 ? 1 : 0,
-                                        pointerEvents: scrollProgress >= 0.5 ? 'auto' : 'none'
-                                    }}
-                                >
-                                    <div>
-                                        <h2 className="text-5xl md:text-6xl font-bold text-white mb-8">
-                                            The <span className="cyber-gradient-text text-glow">Solution</span>
-                                        </h2>
-                                        <p className="text-2xl md:text-3xl text-slate-300 leading-relaxed">
-                                            <span className="cyber-gradient-text font-bold">Bloc.ai</span> delivers personalized 10-minute knowledge blocs.<br />
-                                            Daily. Curated by AI. Just for you.
-                                        </p>
+                                {/* Solution */}
+                                <div className="solution-card scroll-reveal" style={{ animationDelay: '0.2s' }}>
+                                    <div className="text-6xl mb-6">✨</div>
+                                    <h3 className="text-4xl font-bold text-emerald-300 mb-6">The Solution</h3>
+                                    <div className="space-y-4 text-lg text-slate-300">
+                                        <div className="flex items-start gap-3">
+                                            <span className="text-2xl">🎯</span>
+                                            <p>AI picks the perfect topics for you</p>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <span className="text-2xl">⚡</span>
+                                            <p>Just 10 minutes a day is enough</p>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <span className="text-2xl">🤖</span>
+                                            <p>Personalized, bite-sized knowledge blocs</p>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <span className="text-2xl">🔥</span>
+                                            <p>Build a reading habit you'll love</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -426,6 +445,7 @@ export default function Home() {
                 <section className="py-32 bg-slate-950">
                     <div className="container-custom">
                         <div className="text-center mb-20 scroll-reveal">
+                            <div className="text-6xl mb-6">🤖</div>
                             <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
                                 How We <span className="cyber-gradient-text text-glow">Leverage AI</span>
                             </h2>
@@ -435,30 +455,30 @@ export default function Home() {
                         <div className="max-w-6xl mx-auto">
                             <div className="flex flex-col md:flex-row items-center justify-between gap-12">
                                 <div className="flex-1 text-center scroll-reveal" style={{ animationDelay: '0.1s' }}>
-                                    <div className="w-28 h-28 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-purple">
+                                    <div className="w-28 h-28 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-amber-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-purple">
                                         🎯
                                     </div>
-                                    <h3 className="text-2xl font-bold text-white mb-3">Select Topics & Time</h3>
+                                    <h3 className="text-2xl font-bold text-white mb-3">1. Select Topics & Time</h3>
                                     <p className="text-lg text-slate-400">Choose what you learn and when</p>
                                 </div>
 
                                 <div className="hidden md:block text-purple-500/30 text-4xl">→</div>
 
                                 <div className="flex-1 text-center scroll-reveal" style={{ animationDelay: '0.2s' }}>
-                                    <div className="w-28 h-28 mx-auto mb-6 bg-gradient-to-br from-pink-500 to-blue-400 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-pink">
+                                    <div className="w-28 h-28 mx-auto mb-6 bg-gradient-to-br from-amber-500 to-rose-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-amber">
                                         🤖
                                     </div>
-                                    <h3 className="text-2xl font-bold text-white mb-3">AI Creates Blocs</h3>
+                                    <h3 className="text-2xl font-bold text-white mb-3">2. AI Creates Blocs</h3>
                                     <p className="text-lg text-slate-400">Personalized 10-min reads daily</p>
                                 </div>
 
                                 <div className="hidden md:block text-purple-500/30 text-4xl">→</div>
 
                                 <div className="flex-1 text-center scroll-reveal" style={{ animationDelay: '0.3s' }}>
-                                    <div className="w-28 h-28 mx-auto mb-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-blue">
+                                    <div className="w-28 h-28 mx-auto mb-6 bg-gradient-to-br from-rose-500 to-purple-500 rounded-full flex items-center justify-center text-white text-5xl font-bold glow-rose">
                                         🎁
                                     </div>
-                                    <h3 className="text-2xl font-bold text-white mb-3">Read & Collect Rewards</h3>
+                                    <h3 className="text-2xl font-bold text-white mb-3">3. Read & Collect Rewards</h3>
                                     <p className="text-lg text-slate-400">Build consistency, track progress</p>
                                 </div>
                             </div>

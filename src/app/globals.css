@@ -4,26 +4,27 @@
 
 @layer base {
   :root {
-    /* Softer, more pleasant colors */
+    /* Warm, cozy reading palette */
     --color-bg: 255 255 255;
     --color-text: 15 23 42;
     --color-text-muted: 100 116 139;
-    --color-primary: 139 92 246;
-    /* Softer purple */
-    --color-accent: 219 112 199;
-    /* Softer pink/orchid */
+    --color-primary: 147 51 234;
+    /* Rich purple */
+    --color-accent: 251 146 60;
+    /* Warm orange */
     --color-border: 226 232 240;
 
-    /* Pleasant palette */
-    --color-soft-purple: 139 92 246;
-    /* #8B5CF6 */
-    --color-soft-pink: 219 112 199;
-    /* #DB70C7 */
-    --color-warm-blue: 96 165 250;
-    /* #60A5FA */
-    --color-mint: 110 231 183;
-    /* #6EE7B7 */
-    --color-deep-space: 15 23 42;
+    /* Readers' paradise palette */
+    --color-deep-purple: 109 40 217;
+    /* #6D28D9 */
+    --color-amber: 251 191 36;
+    /* #FBBF24 */
+    --color-rose: 251 113 133;
+    /* #FB7185 */
+    --color-emerald: 52 211 153;
+    /* #34D399 */
+    --color-warm-slate: 30 41 59;
+    /* #1E293B */
   }
 
   body {
@@ -60,14 +61,14 @@
 
 @layer components {
 
-  /* Soft gradient text */
+  /* Warm gradient text */
   .cyber-gradient-text {
-    background: linear-gradient(135deg, #8B5CF6 0%, #DB70C7 50%, #60A5FA 100%);
+    background: linear-gradient(135deg, #A855F7 0%, #FBBF24 50%, #FB7185 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     background-size: 200% auto;
-    animation: gradient-shift 4s ease infinite;
+    animation: gradient-shift 5s ease infinite;
   }
 
   .shimmer {
@@ -79,24 +80,24 @@
     animation: shimmer 2s infinite linear;
   }
 
-  /* Softer neon card */
+  /* Warm neon card */
   .neon-card {
     @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8;
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .neon-card:hover {
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.3), 0 0 60px rgba(219, 112, 199, 0.2);
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.3), 0 0 60px rgba(251, 191, 36, 0.2);
     transform: translateY(-6px);
     border-color: rgba(255, 255, 255, 0.2);
   }
 
-  /* Softer cyber button */
+  /* Warm cyber button */
   .btn-cyber {
     @apply px-10 py-5 rounded-full font-bold text-lg text-white relative overflow-hidden;
-    background: linear-gradient(135deg, #8B5CF6 0%, #DB70C7 100%);
-    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4);
+    background: linear-gradient(135deg, #A855F7 0%, #FBBF24 100%);
+    box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -116,7 +117,7 @@
   }
 
   .btn-cyber:hover {
-    box-shadow: 0 12px 50px rgba(139, 92, 246, 0.6), 0 8px 30px rgba(219, 112, 199, 0.4);
+    box-shadow: 0 12px 50px rgba(168, 85, 247, 0.6), 0 8px 30px rgba(251, 191, 36, 0.4);
     transform: translateY(-3px) scale(1.03);
   }
 
@@ -155,19 +156,37 @@
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* Problem card styling */
+  .problem-card {
+    @apply bg-red-500/10 border-2 border-red-500/30 rounded-3xl p-8;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.15);
+  }
+
+  /* Solution card styling */
+  .solution-card {
+    @apply bg-emerald-500/10 border-2 border-emerald-500/30 rounded-3xl p-8;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 30px rgba(52, 211, 153, 0.15);
+  }
 }
 
 @layer utilities {
   .text-glow {
-    text-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(219, 112, 199, 0.3);
+    text-shadow: 0 0 20px rgba(168, 85, 247, 0.6), 0 0 40px rgba(251, 191, 36, 0.3);
   }
 
   .glow-purple {
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.6);
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
   }
 
-  .glow-pink {
-    box-shadow: 0 0 30px rgba(219, 112, 199, 0.6);
+  .glow-amber {
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+  }
+
+  .glow-rose {
+    box-shadow: 0 0 30px rgba(251, 113, 133, 0.6);
   }
 
   .glow-blue {
@@ -185,12 +204,13 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-purple-600 rounded-full;
+  background: linear-gradient(180deg, #A855F7 0%, #FBBF24 100%);
+  @apply rounded-full;
   transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-purple-500;
+  background: linear-gradient(180deg, #9333EA 0%, #F59E0B 100%);
 }
 
 *:focus-visible {
