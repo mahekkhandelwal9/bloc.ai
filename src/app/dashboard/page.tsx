@@ -119,7 +119,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-white">
+        <div className="min-h-screen">
             <StreakDetails
                 isOpen={showStreakDetails}
                 onClose={() => setShowStreakDetails(false)}
@@ -219,7 +219,7 @@ export default function DashboardPage() {
                                 <button
                                     onClick={handleGenerateToday}
                                     disabled={generating || bonusBlocsToday >= 3}
-                                    className="group relative px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-600 
+                                    className="group relative px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 
                                              text-white text-lg font-semibold rounded-2xl
                                              shadow-xl hover:shadow-2xl
                                              transform transition-all duration-300

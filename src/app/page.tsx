@@ -100,7 +100,7 @@ export default function Home() {
     };
 
     return (
-        <main className="min-h-screen relative flex flex-col bg-gradient-to-br from-white via-purple-50/30 to-white">
+        <main className="min-h-screen relative flex flex-col">
             {/* Header with Logout */}
             <header className="absolute top-0 left-0 right-0 z-10 p-6">
                 <div className="container-custom flex justify-between items-center">
@@ -175,7 +175,7 @@ export default function Home() {
                                 <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 
                                               rounded-2xl blur-lg opacity-50 group-hover:opacity-75 
                                               transition-all duration-300 animate-pulse"></div>
-                                <div className="relative px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 
+                                <div className="relative px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 
                                               text-white text-lg font-semibold rounded-2xl
                                               shadow-xl hover:shadow-2xl
                                               transform transition-all duration-300

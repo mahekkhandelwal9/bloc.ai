@@ -3,11 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-'use client';
-
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { TOPICS, READING_DAYS } from '@/lib/constants';
 
 export default function SettingsPage() {
@@ -134,7 +129,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-purple-50/30 to-white">
+    <div className="min-h-screen">
       {/* Header */}
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="container-custom py-4 flex items-center justify-between">
@@ -241,10 +236,10 @@ export default function SettingsPage() {
                             onClick={() => toggleTopic(topic)}
                             disabled={isDisabled}
                             className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${isSelected
-                                ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md transform scale-105'
-                                : isDisabled
-                                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                  : 'bg-white border-2 border-slate-200 hover:border-primary-300 hover:shadow-sm'
+                              ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md transform scale-105'
+                              : isDisabled
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                : 'bg-white border-2 border-slate-200 hover:border-primary-300 hover:shadow-sm'
                               }`}
                           >
                             {topic}
@@ -263,8 +258,8 @@ export default function SettingsPage() {
                           key={option.value}
                           onClick={() => setSchedule(option.value)}
                           className={`w-full p-4 rounded-xl text-left transition-all ${schedule === option.value
-                              ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md'
-                              : 'bg-white border-2 border-slate-200 hover:border-primary-300'
+                            ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md'
+                            : 'bg-white border-2 border-slate-200 hover:border-primary-300'
                             }`}
                         >
                           <div className="font-semibold">{option.label}</div>

@@ -20,6 +20,15 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Check if RESEND_API_KEY exists
+        if (!process.env.RESEND_API_KEY) {
+            console.error('RESEND_API_KEY is missing!');
+            return NextResponse.json(
+                { error: 'Email service not configured' },
+                { status: 500 }
+            );
+        }
+
         // Generate OTP
         const code = generateOTP();
         const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
@@ -75,10 +84,10 @@ export async function POST(request: NextRequest) {
           </div>
         `,
             });
-        } catch (emailError) {
+        } catch (emailError: any) {
             console.error('Email error:', emailError);
             return NextResponse.json(
-                { error: 'Failed to send verification email' },
+                { error: `Failed to send verification email: ${emailError.message}` },
                 { status: 500 }
             );
         }
@@ -87,7 +96,7 @@ export async function POST(request: NextRequest) {
             { message: 'OTP sent successfully' },
             { status: 200 }
         );
-    } catch (error) {
+    } catch (error: any) {
         console.error('Send OTP error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },

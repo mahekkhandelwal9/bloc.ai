@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
             .single();
 
         if (error && error.code !== 'PGRST116') {
+            console.error('Database error:', error);
             throw error;
         }
 
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
         });
 
     } catch (error) {
-        console.error('Check email error:', error);
+        console.error('Error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
