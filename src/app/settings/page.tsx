@@ -9,6 +9,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>('preferences');
 
   // Preferences State
@@ -99,6 +100,17 @@ export default function SettingsPage() {
       alert('Failed to save settings');
     } finally {
       setSaving(false);
+      setIsEditing(false); // Exit edit mode after saving
+    }
+  };
+
+  const handleEditToggle = () => {
+    if (isEditing) {
+      // If currently editing, save the changes
+      handleSave();
+    } else {
+      // Enter edit mode
+      setIsEditing(true);
     }
   };
 
@@ -180,11 +192,11 @@ export default function SettingsPage() {
               </p>
             </div>
             <button
-              onClick={handleSave}
-              disabled={saving || topics.length === 0}
+              onClick={handleEditToggle}
+              disabled={saving || (!isEditing && topics.length === 0)}
               className="btn-primary disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
             >
-              {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? 'Saving...' : isEditing ? 'Save Changes' : 'Edit'}
             </button>
           </div>
 
@@ -234,7 +246,7 @@ export default function SettingsPage() {
                           <button
                             key={topic}
                             onClick={() => toggleTopic(topic)}
-                            disabled={isDisabled}
+                            disabled={isDisabled || !isEditing}
                             className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${isSelected
                               ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md transform scale-105'
                               : isDisabled
@@ -257,6 +269,7 @@ export default function SettingsPage() {
                         <button
                           key={option.value}
                           onClick={() => setSchedule(option.value)}
+                          disabled={!isEditing}
                           className={`w-full p-4 rounded-xl text-left transition-all ${schedule === option.value
                             ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-md'
                             : 'bg-white border-2 border-slate-200 hover:border-primary-300'
@@ -275,7 +288,8 @@ export default function SettingsPage() {
                         type="time"
                         value={time}
                         onChange={(e) => setTime(e.target.value)}
-                        className="input text-center text-xl font-semibold max-w-[200px]"
+                        disabled={!isEditing}
+                        className="input text-center text-xl font-semibold max-w-[200px] disabled:bg-slate-50 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
@@ -289,7 +303,8 @@ export default function SettingsPage() {
                       placeholder="Tell us about yourself..."
                       rows={4}
                       maxLength={500}
-                      className="input resize-none"
+                      disabled={!isEditing}
+                      className="input resize-none disabled:bg-slate-50 disabled:cursor-not-allowed"
                     />
                     <div className="text-right text-sm text-slate-400">
                       {bio.length}/500
@@ -340,7 +355,8 @@ export default function SettingsPage() {
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="input"
+                        disabled={!isEditing}
+                        className="input disabled:bg-slate-50 disabled:cursor-not-allowed"
                         placeholder="username"
                       />
                       <p className="text-xs text-slate-500">Unique identifier for your profile.</p>
@@ -353,7 +369,8 @@ export default function SettingsPage() {
                         type="text"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="input"
+                        disabled={!isEditing}
+                        className="input disabled:bg-slate-50 disabled:cursor-not-allowed"
                         placeholder="John Doe"
                       />
                     </div>
