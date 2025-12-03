@@ -307,17 +307,28 @@ export default function Home() {
                 <section className="py-24 bg-gradient-to-b from-slate-950 to-slate-900">
                     <div className="container-custom">
                         <div className="max-w-5xl mx-auto">
-                            <div className="grid md:grid-cols-3 gap-12 text-center">
+                            <div className="text-center mb-16 scroll-reveal">
+                                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                                    By the <span className="cyber-gradient-text text-glow">Numbers</span>
+                                </h2>
+                                <p className="text-xl text-slate-400">Growing every day</p>
+                            </div>
+
+                            <div className="grid md:grid-cols-4 gap-12 text-center">
                                 <div className="scroll-reveal">
-                                    <div className="text-6xl font-bold cyber-gradient-text mb-3">12.5K+</div>
-                                    <div className="text-lg text-slate-400">Articles Created by AI</div>
+                                    <div className="text-5xl md:text-6xl font-bold cyber-gradient-text mb-3">200K+</div>
+                                    <div className="text-lg text-slate-400">Blocs Made</div>
                                 </div>
                                 <div className="scroll-reveal" style={{ animationDelay: '0.1s' }}>
-                                    <div className="text-6xl font-bold cyber-gradient-text mb-3">45K+</div>
-                                    <div className="text-lg text-slate-400">Articles Read</div>
+                                    <div className="text-5xl md:text-6xl font-bold cyber-gradient-text mb-3">110K+</div>
+                                    <div className="text-lg text-slate-400">Blocs Read</div>
                                 </div>
                                 <div className="scroll-reveal" style={{ animationDelay: '0.2s' }}>
-                                    <div className="text-6xl font-bold cyber-gradient-text mb-3">2.8K+</div>
+                                    <div className="text-5xl md:text-6xl font-bold cyber-gradient-text mb-3">15K+</div>
+                                    <div className="text-lg text-slate-400">Blocs Shared</div>
+                                </div>
+                                <div className="scroll-reveal" style={{ animationDelay: '0.3s' }}>
+                                    <div className="text-5xl md:text-6xl font-bold cyber-gradient-text mb-3">2K+</div>
                                     <div className="text-lg text-slate-400">Happy Readers</div>
                                 </div>
                             </div>
