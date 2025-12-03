@@ -14,6 +14,7 @@ export default function Home() {
     const [error, setError] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [currentQuote, setCurrentQuote] = useState(0);
+    const [scrollProgress, setScrollProgress] = useState(0);
 
     const quotes = [
         { text: "The more that you read, the more things you will know.", author: "Dr. Seuss", emoji: "🧠" },
@@ -30,7 +31,7 @@ export default function Home() {
         };
         checkAuth();
 
-        // Scroll-based quote change
+        // Scroll-based quote change and problem/solution transition
         const handleScroll = () => {
             const quotesSection = document.getElementById('quotes-section');
             if (quotesSection) {
@@ -40,6 +41,16 @@ export default function Home() {
                 const progress = Math.max(0, Math.min(1, scrollInSection / (sectionHeight * 0.8)));
                 const quoteIndex = Math.floor(progress * quotes.length);
                 setCurrentQuote(Math.min(quoteIndex, quotes.length - 1));
+            }
+
+            // Problem/Solution transition
+            const problemSection = document.getElementById('problem-solution-section');
+            if (problemSection) {
+                const rect = problemSection.getBoundingClientRect();
+                const sectionHeight = problemSection.offsetHeight;
+                const scrollInSection = -rect.top;
+                const progress = Math.max(0, Math.min(1, scrollInSection / sectionHeight));
+                setScrollProgress(progress);
             }
         };
 
@@ -365,31 +376,47 @@ export default function Home() {
                     </div>
                 </section>
 
-                {/* Problem → Solution */}
-                <section className="py-32 bg-gradient-to-b from-slate-900 to-slate-950">
-                    <div className="container-custom">
-                        <div className="max-w-5xl mx-auto text-center">
-                            <div className="scroll-reveal mb-20">
-                                <h2 className="text-5xl md:text-6xl font-bold text-white mb-8">
-                                    The <span className="cyber-gradient-text text-glow">Problem</span>
-                                </h2>
-                                <p className="text-2xl md:text-3xl text-slate-300 leading-relaxed">
-                                    Reading feels overwhelming.<br />Too many books. No time. No system.
-                                </p>
-                            </div>
+                {/* Problem → Solution (scroll-triggered transition) */}
+                <section id="problem-solution-section" className="min-h-[300vh] bg-gradient-to-b from-slate-900 to-slate-950 relative">
+                    <div className="sticky top-0 h-screen flex items-center justify-center">
+                        <div className="container-custom text-center relative">
+                            <div className="max-w-5xl mx-auto">
+                                {/* Problem (fades out on scroll) */}
+                                <div
+                                    className="absolute inset-0 flex items-center justify-center transition-opacity duration-700"
+                                    style={{
+                                        opacity: scrollProgress < 0.5 ? 1 : 0,
+                                        pointerEvents: scrollProgress < 0.5 ? 'auto' : 'none'
+                                    }}
+                                >
+                                    <div>
+                                        <h2 className="text-5xl md:text-6xl font-bold text-white mb-8">
+                                            The <span className="cyber-gradient-text text-glow">Problem</span>
+                                        </h2>
+                                        <p className="text-2xl md:text-3xl text-slate-300 leading-relaxed">
+                                            Reading feels overwhelming.<br />Too many books. No time. No system.
+                                        </p>
+                                    </div>
+                                </div>
 
-                            <div className="my-16 flex justify-center">
-                                <div className="text-5xl text-purple-500/40">↓</div>
-                            </div>
-
-                            <div className="scroll-reveal">
-                                <h2 className="text-5xl md:text-6xl font-bold text-white mb-8">
-                                    The <span className="cyber-gradient-text text-glow">Solution</span>
-                                </h2>
-                                <p className="text-2xl md:text-3xl text-slate-300 leading-relaxed">
-                                    <span className="cyber-gradient-text font-bold">Bloc.ai</span> delivers personalized 10-minute knowledge blocs.<br />
-                                    Daily. Curated by AI. Just for you.
-                                </p>
+                                {/* Solution (fades in on scroll) */}
+                                <div
+                                    className="absolute inset-0 flex items-center justify-center transition-opacity duration-700"
+                                    style={{
+                                        opacity: scrollProgress >= 0.5 ? 1 : 0,
+                                        pointerEvents: scrollProgress >= 0.5 ? 'auto' : 'none'
+                                    }}
+                                >
+                                    <div>
+                                        <h2 className="text-5xl md:text-6xl font-bold text-white mb-8">
+                                            The <span className="cyber-gradient-text text-glow">Solution</span>
+                                        </h2>
+                                        <p className="text-2xl md:text-3xl text-slate-300 leading-relaxed">
+                                            <span className="cyber-gradient-text font-bold">Bloc.ai</span> delivers personalized 10-minute knowledge blocs.<br />
+                                            Daily. Curated by AI. Just for you.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
