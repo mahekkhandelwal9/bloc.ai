@@ -1,0 +1,712 @@
+openapi: 3.0.3
+info:
+  title: Bloc.ai API
+  description: |
+    REST API for Bloc.ai - A daily learning habit product delivering personalized AI-curated knowledge blocks.
+    
+    ## Authentication
+    Most endpoints require authentication via HTTP-only cookie `bloc_user_id` set after successful OTP verification.
+    
+    ## Rate Limiting
+    - OTP endpoints: 5 requests per 15 minutes per email
+    - Other endpoints: 100 requests per minute per user
+    
+    ## Base URL
+    - Development: `http://localhost:3001/api`
+    - Production: `https://your-domain.com/api`
+  version: 1.0.0
+  contact:
+    name: Bloc.ai Support
+    email: support@bloc.ai
+
+servers:
+  - url: http://localhost:3001/api
+    description: Development server
+  - url: https://your-domain.com/api
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: User
+    description: User profile and preferences
+  - name: Blocs
+    description: Daily learning content management
+  - name: Archive
+    description: Reading history and completed blocs
+  - name: Debug
+    description: Development and testing endpoints
+
+paths:
+  # ========================================
+  # AUTHENTICATION ENDPOINTS
+  # ========================================
+  
+  /auth/send-otp:
+    post:
+      tags: [Authentication]
+      summary: Send OTP to user email
+      description: Generates a 6-digit OTP and sends it via email. OTP expires in 5 minutes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+      responses:
+        '200':
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OTP sent successfully
+        '400':
+          description: Invalid email address
+        '500':
+          description: Failed to send OTP
+  
+  /auth/verify-otp:
+    post:
+      tags: [Authentication]
+      summary: Verify OTP and create session
+      description: Verifies OTP code and creates user session. Returns user info and onboarding status.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, code]
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                  pattern: '^\d{6}$'
+                  example: '123456'
+      responses:
+        '200':
+          description: Verification successful
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: bloc_user_id=abc123; HttpOnly; Secure; SameSite=Lax
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  userId:
+                    type: string
+                    format: uuid
+                  needsOnboarding:
+                    type: boolean
+        '401':
+          description: Invalid or expired code
+        '500':
+          description: Server error
+  
+  /auth/check-email:
+    post:
+      tags: [Authentication]
+      summary: Check if email exists
+      description: Checks if user account exists for given email and if password is set
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Email check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exists:
+                    type: boolean
+                  hasPassword:
+                    type: boolean
+  
+  /auth/login-password:
+    post:
+      tags: [Authentication]
+      summary: Login with password
+      description: Authenticate user with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  userId:
+                    type: string
+                  needsOnboarding:
+                    type: boolean
+        '401':
+          description: Invalid credentials
+  
+  /auth/set-password:
+    post:
+      tags: [Authentication]
+      summary: Set user password
+      description: Sets password for user account (optional feature)
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+      responses:
+        '200':
+          description: Password set successfully
+        '401':
+          description: Unauthorized
+  
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Logout user
+      description: Clears user session cookie
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Logout successful
+  
+  # ========================================
+  # USER ENDPOINTS
+  # ========================================
+  
+  /user/profile:
+    get:
+      tags: [User]
+      summary: Get user profile
+      description: Returns user profile information
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Unauthorized
+  
+  /user/preferences:
+    get:
+      tags: [User]
+      summary: Get user preferences
+      description: Returns user's learning preferences (topics, schedule, time, bio)
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: User preferences
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserPreferences'
+        '401':
+          description: Unauthorized
+    
+    post:
+      tags: [User]
+      summary: Save user preferences
+      description: Creates or updates user preferences
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPreferences'
+      responses:
+        '200':
+          description: Preferences saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/UserPreferences'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+  
+  /user/set-username:
+    post:
+      tags: [User]
+      summary: Set username
+      description: Sets unique username for user account
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username]
+              properties:
+                username:
+                  type: string
+                  pattern: '^[a-zA-Z0-9_]{3,20}$'
+                  example: learner_123
+      responses:
+        '200':
+          description: Username set successfully
+        '400':
+          description: Username taken or invalid
+        '401':
+          description: Unauthorized
+  
+  /user/streak:
+    get:
+      tags: [User]
+      summary: Get user streak
+      description: Returns current and longest reading streak
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Streak information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Streak'
+        '401':
+          description: Unauthorized
+  
+  # ========================================
+  # BLOCS ENDPOINTS
+  # ========================================
+  
+  /blocs/today:
+    get:
+      tags: [Blocs]
+      summary: Get today's blocs
+      description: Returns blocs scheduled for today based on user's reading days
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Today's blocs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  blocs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Bloc'
+                  is_first_day:
+                    type: boolean
+        '401':
+          description: Unauthorized
+  
+  /blocs/{id}:
+    get:
+      tags: [Blocs]
+      summary: Get bloc by ID
+      description: Returns full bloc content including markdown text
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Bloc content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bloc'
+        '404':
+          description: Bloc not found
+        '401':
+          description: Unauthorized
+  
+  /blocs/{id}/complete:
+    post:
+      tags: [Blocs]
+      summary: Mark bloc as complete
+      description: Marks bloc as read and updates user streak
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Bloc marked complete
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  streak:
+                    $ref: '#/components/schemas/Streak'
+        '401':
+          description: Unauthorized
+  
+  /blocs/generate-today:
+    post:
+      tags: [Blocs]
+      summary: Generate today's blocs
+      description: Manually trigger generation of today's blocs using AI
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Blocs generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  blocs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Bloc'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Generation failed
+  
+  /blocs/generate-bonus:
+    post:
+      tags: [Blocs]
+      summary: Generate bonus bloc
+      description: Generate an additional bloc on-demand
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [topic]
+              properties:
+                topic:
+                  type: string
+                  example: Artificial Intelligence
+      responses:
+        '200':
+          description: Bonus bloc generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bloc'
+        '401':
+          description: Unauthorized
+  
+  /blocs/archive:
+    get:
+      tags: [Blocs]
+      summary: Get blocs archive
+      description: Returns paginated list of user's completed blocs
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 30
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Archive blocs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  blocs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Bloc'
+                  total:
+                    type: integer
+        '401':
+          description: Unauthorized
+  
+  # ========================================
+  # ARCHIVE ENDPOINTS
+  # ========================================
+  
+  /archive:
+    get:
+      tags: [Archive]
+      summary: Get reading history
+      description: Returns user's complete reading history with bloc details
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Reading history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  history:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReadingHistoryItem'
+        '401':
+          description: Unauthorized
+  
+  # ========================================
+  # DEBUG ENDPOINTS
+  # ========================================
+  
+  /debug/test-gemini:
+    get:
+      tags: [Debug]
+      summary: Test Gemini API
+      description: Tests connection and generation with Gemini AI
+      responses:
+        '200':
+          description: Test successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  test_response:
+                    type: string
+  
+  /debug/users:
+    get:
+      tags: [Debug]
+      summary: List all users
+      description: Returns all users for debugging (admin only)
+      responses:
+        '200':
+          description: Users list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserProfile'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: bloc_user_id
+  
+  schemas:
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        last_login:
+          type: string
+          format: date-time
+    
+    UserPreferences:
+      type: object
+      required: [topics, reading_days, preferred_time]
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        bio:
+          type: string
+          maxLength: 500
+          example: "Software engineer interested in AI and philosophy"
+        topics:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            type: string
+          example: ["Artificial Intelligence", "Philosophy", "Psychology"]
+        reading_days:
+          type: string
+          enum: [weekdays, weekends, daily]
+        preferred_time:
+          type: string
+          format: time
+          example: "09:00"
+        timezone:
+          type: string
+          example: "America/New_York"
+        updated_at:
+          type: string
+          format: date-time
+    
+    Bloc:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        topic:
+          type: string
+          example: "Artificial Intelligence"
+        title:
+          type: string
+          example: "The Rise of Large Language Models"
+        content:
+          type: string
+          description: Markdown formatted content
+        scheduled_date:
+          type: string
+          format: date
+        generated_at:
+          type: string
+          format: date-time
+        continuity_reference:
+          type: string
+          description: Reference to previous day's topic
+          example: "Yesterday we explored neural networks"
+        status:
+          type: string
+          enum: [pending, generated, failed]
+    
+    Streak:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        current_streak:
+          type: integer
+          example: 7
+        longest_streak:
+          type: integer
+          example: 21
+        last_read_date:
+          type: string
+          format: date
+    
+    ReadingHistoryItem:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        bloc_id:
+          type: string
+          format: uuid
+        completed_at:
+          type: string
+          format: date-time
+        reading_progress:
+          type: integer
+          description: Percentage of bloc read
+          minimum: 0
+          maximum: 100
+        blocs:
+          $ref: '#/components/schemas/Bloc'
+    
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Invalid or expired code"
